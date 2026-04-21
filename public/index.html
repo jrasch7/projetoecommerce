@@ -32,83 +32,46 @@
         }
     </script>
     <style>
-
-    @keyframes slideBanner {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
-}
-
-.animate-slide {
-    display: inline-block;
-    white-space: nowrap;
-    animation: slideBanner 40s linear infinite;
-}
-
-.top-bar-height {
-    height: 32px; /* Altura reduzida conforme solicitado */
-}
-
-/* Garante que o container da animação ocupe o espaço correto */
-.top-bar-container {
-    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-}
-    
-    /* Configuração do Mega Menu */
-.group\/mega:hover .rotate-icon {
-    transform: rotate(180deg);
-}
-
-/* Garante que o menu ocupe a largura total e não feche ao mover o mouse */
-.group\/mega { position: static; }
-
-/* Ajuste de colunas e hover nos links dos subdepartamentos */
-.mega-menu-link {
-    display: block;
-    padding: 3px 0;
-    color: #4b5563; /* gray-600 */
-    transition: all 0.2s ease;
-}
-
-.mega-menu-link:hover {
-    color: #e74c3c; /* accent */
-    transform: translateX(4px);
-}
-
-.mega-menu-title {
-    font-weight: 800;
-    color: #0a2540; /* primary */
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.75rem;
-    border-bottom: 2px solid #f4f4f4;
-    padding-bottom: 4px;
-}
-
-/* Garante que o menu não tenha "gap" para o mouse não sair */
-.group\/mega {
-    position: static; /* Necessário para o Mega Menu ocupar a largura total da tela */
-}
-
-/* Estilização suave para os links do mega menu */
-.group\/mega a.block {
-    padding: 2px 0;
-    color: #4b5563; /* text-gray-600 */
-}
-
-.group\/mega a.block:hover {
-    padding-left: 5px; /* Efeito sutil de slide */
-}
-
-        /* scroll suave e esconder scrollbars */
+        @keyframes slideBanner {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-slide {
+            display: inline-block;
+            white-space: nowrap;
+            animation: slideBanner 40s linear infinite;
+        }
+        .top-bar-height { height: 32px; }
+        .top-bar-container {
+            mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+        }
+        .group\/mega:hover .rotate-icon { transform: rotate(180deg); }
+        .group\/mega { position: static; }
+        .mega-menu-link {
+            display: block;
+            padding: 3px 0;
+            color: #4b5563;
+            transition: all 0.2s ease;
+        }
+        .mega-menu-link:hover {
+            color: #e74c3c;
+            transform: translateX(4px);
+        }
+        .mega-menu-title {
+            font-weight: 800;
+            color: #0a2540;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            border-bottom: 2px solid #f4f4f4;
+            padding-bottom: 4px;
+        }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* transições globais */
         button, a, .clickable { transition: all 0.3s ease; }
 
-        /* carrossel de produtos - cards flexíveis (ambos os carrosséis) */
         #featuredTrack, #homeTrack {
             display: flex;
             gap: 1.25rem;
@@ -116,35 +79,23 @@
             transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             cursor: grab;
         }
-        #featuredTrack:active, #homeTrack:active {
-            cursor: grabbing;
-        }
+        #featuredTrack:active, #homeTrack:active { cursor: grabbing; }
         .feature-card, .home-card {
-            flex: 0 0 calc((100% - 5rem) / 5); /* 5 cards desktop (gap 1.25rem*4 = 5rem) */
+            flex: 0 0 calc((100% - 5rem) / 5);
         }
         @media (max-width: 1024px) {
-            .feature-card, .home-card {
-                flex: 0 0 calc((100% - 2.5rem) / 3); /* 3 tablets */
-            }
+            .feature-card, .home-card { flex: 0 0 calc((100% - 2.5rem) / 3); }
         }
         @media (max-width: 640px) {
-            .feature-card, .home-card {
-                flex: 0 0 calc((100% - 1.25rem) / 2); /* 2 mobile */
-            }
+            .feature-card, .home-card { flex: 0 0 calc((100% - 1.25rem) / 2); }
         }
-        
-        /* imagens padronizadas */
         .product-img {
             aspect-ratio: 1 / 1;
             object-fit: contain;
             background: #f9fafb;
             transition: transform 0.3s ease;
         }
-        .group:hover .product-img {
-            transform: scale(1.03);
-        }
-
-        /* hero dots */
+        .group:hover .product-img { transform: scale(1.03); }
         .hero-dot {
             transition: all 0.2s ease;
             cursor: pointer;
@@ -153,8 +104,6 @@
             background-color: #e74c3c !important;
             width: 2rem !important;
         }
-
-        /* categoria card hover */
         .category-card {
             transition: all 0.3s ease;
         }
@@ -163,49 +112,55 @@
             color: white;
             transform: translateY(-4px);
         }
-        .category-card:hover i {
-            color: white;
+        .category-card:hover i { color: white; }
+        .group:hover ul::before {
+            content: "";
+            position: absolute;
+            top: -20px;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: transparent;
         }
-
-        /* Correção do Menu Suspenso: Ponte Invisível */
-.group:hover ul::before {
-    content: "";
-    position: absolute;
-    top: -20px; /* Preenche o espaço entre o botão e o menu */
-    left: 0;
-    right: 0;
-    height: 20px;
-    background: transparent;
-}
-
-/* Ajuste de posicionamento para garantir a conexão */
-nav ul {
-    margin-top: 5px !important; /* Aproxima um pouco mais o menu do botão */
-}
-
-/* Transição suave para qualquer ícone que deva rodar */
-.rotate-icon {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: inline-block; /* Necessário para o transform funcionar bem */
-}
-
-/* Quando o grupo pai (botão) recebe hover, a seta roda 180 graus */
-.group:hover .rotate-icon {
-    transform: rotate(180deg);
-}
-
+        nav ul { margin-top: 5px !important; }
+        .rotate-icon {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-block;
+        }
+        .group:hover .rotate-icon { transform: rotate(180deg); }
+        /* Modal animations */
+        .modal-enter {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .modal-enter-active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content-enter {
+            transform: scale(0.95);
+            transition: transform 0.2s ease;
+        }
+        .modal-enter-active .modal-content-enter {
+            transform: scale(1);
+        }
     </style>
 </head>
 <body class="bg-light-gray font-sans text-gray-900">
 
-    <!-- ===== TOP BAR (carrossel informativo) ===== -->
-    <div class="bg-primary text-white top-bar-height flex items-center overflow-hidden relative border-b border-white/5">
+<!-- ===== MODAL CONTAINER (dinâmico) ===== -->
+<div id="globalModal" class="fixed inset-0 z-[200] flex items-center justify-center p-5 invisible opacity-0 transition-all duration-300" style="pointer-events: none;">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="closeGlobalModal()"></div>
+    <div id="globalModalContent" class="relative bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl transform transition-all duration-300 scale-95" style="pointer-events: auto;"></div>
+</div>
+
+<!-- ===== TOP BAR ===== -->
+<div class="bg-primary text-white top-bar-height flex items-center overflow-hidden relative border-b border-white/5">
     <div class="w-full flex items-center h-full top-bar-container">
         <div class="animate-slide whitespace-nowrap">
             <span class="px-12 text-[13px] font-medium">🚚 Entrega ágil para todo o Brasil</span>
             <span class="px-12 text-[13px] font-medium">🔧 Assistência técnica especializada | Peças originais</span>
             <span class="px-12 text-[13px] font-medium">💳 Parcele em até 3x sem juros em todo o site</span>
-            
             <span class="px-12 text-[13px] font-medium">🚚 Entrega ágil para todo o Brasil</span>
             <span class="px-12 text-[13px] font-medium">🔧 Assistência técnica especializada | Peças originais</span>
             <span class="px-12 text-[13px] font-medium">💳 Parcele em até 3x sem juros em todo o site</span>
@@ -213,626 +168,406 @@ nav ul {
     </div>
 </div>
 
-    <!-- ===== HEADER ===== -->
-    <header class="bg-primary shadow-xl sticky top-0 z-50 py-5">
-        <div class="container mx-auto px-4 flex flex-wrap items-center justify-between gap-6">
-            <a href="/" class="shrink-0">
-                <img src="./logo-moro.png" alt="Elétrica Moro - Peças e Serviços" class="h-14 w-auto" onerror="this.src='https://placehold.co/200x60?text=Elétrica+Moro'">
+<!-- ===== HEADER ===== -->
+<header class="bg-primary shadow-xl sticky top-0 z-50 py-5">
+    <div class="container mx-auto px-4 flex flex-wrap items-center justify-between gap-6">
+        <a href="/" class="flex items-center shrink-0">
+            <img src="img/logo-moro.webp" alt="Elétrica Moro - Peças e Serviços" class="h-12 w-auto object-contain" onerror="this.src='https://placehold.co/200x48/0a2540/white?text=MORO'">
+        </a>
+        <form class="flex-grow max-w-2xl relative order-3 md:order-none w-full md:w-auto" onsubmit="event.preventDefault(); alert('Busca em desenvolvimento');">
+            <input type="search" placeholder="Buscar peças, eletrodomésticos ou serviços..." class="w-full py-3.5 px-6 rounded-full text-sm focus:ring-2 focus:ring-accent outline-none bg-white">
+            <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 text-primary text-xl">
+                <i class="ph ph-magnifying-glass"></i>
+            </button>
+        </form>
+        <nav class="flex items-center gap-4">
+            <div class="relative group">
+                <button class="flex items-center gap-2 text-white p-2 hover:bg-white/10 rounded-lg transition-all" onclick="openAccountModal()">
+                    <i class="ph ph-user text-2xl"></i>
+                    <span class="hidden lg:inline text-sm font-medium">Minha Conta</span>
+                    <i class="ph ph-caret-down text-xs rotate-icon"></i>
+                </button>
+                <!-- dropdown mantido apenas visual, ação via modal -->
+            </div>
+            <a href="#" class="flex items-center gap-2 text-white p-2 hover:bg-white/10 rounded-lg transition-all" onclick="openCartModal()">
+                <div class="relative">
+                    <i class="ph ph-shopping-cart text-2xl"></i>
+                    <span id="cartCount" class="absolute -top-2 -right-2 bg-accent text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+                </div>
+                <span class="hidden lg:inline text-sm font-medium">Carrinho</span>
             </a>
-            <form class="flex-grow max-w-2xl relative order-3 md:order-none w-full md:w-auto">
-                <input type="search" placeholder="Buscar peças, eletrodomésticos ou serviços..." class="w-full py-3.5 px-6 rounded-full text-sm focus:ring-2 focus:ring-accent outline-none bg-white">
-                <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 text-primary text-xl">
-                    <i class="ph ph-magnifying-glass"></i>
-                </button>
-            </form>
-            <nav class="flex items-center gap-4">
-                <div class="relative group">
-                    <button class="flex items-center gap-2 text-white p-2 hover:bg-white/10 rounded-lg transition-all">
-                        <i class="ph ph-user text-2xl"></i>
-                        <span class="hidden lg:inline text-sm font-medium">Minha Conta</span>
-                        <i class="ph ph-caret-down text-xs rotate-icon"></i>
-                    </button>
-                    <ul class="absolute right-0 top-full mt-2 w-48 bg-secondary rounded-xl shadow-2xl py-2 hidden group-hover:block border border-white/5">
-                        <li><a href="#" class="block px-5 py-3 text-sm text-white hover:bg-white/10"><i class="ph ph-package mr-2"></i> Meus Pedidos</a></li>
-                        <li><a href="#" class="block px-5 py-3 text-sm text-white hover:bg-white/10"><i class="ph ph-gear mr-2"></i> Meus Dados</a></li>
-                        <li class="border-t border-white/10 mt-2"><a href="#" class="block px-5 py-3 text-sm text-accent hover:bg-white/10">Sair</a></li>
-                    </ul>
-                </div>
-                <a href="#" class="flex items-center gap-2 text-white p-2 hover:bg-white/10 rounded-lg transition-all">
-                    <div class="relative">
-                        <i class="ph ph-shopping-cart text-2xl"></i>
-                        <span class="absolute -top-2 -right-2 bg-accent text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
-                    </div>
-                    <span class="hidden lg:inline text-sm font-medium">Carrinho</span>
-                </a>
-            </nav>
-        </div>
-    </header>
+        </nav>
+    </div>
+</header>
 
-    <!-- ===== MENU CATEGORIAS (dinâmico) ===== -->
-    <section class="bg-white border-b border-gray-200 relative">
+<!-- ===== MENU CATEGORIAS (DINÂMICO) ===== -->
+<section class="bg-white border-b border-gray-200 relative">
     <div class="container mx-auto px-4">
-        <ul class="flex items-center gap-8 py-4 overflow-x-auto hide-scrollbar whitespace-nowrap text-sm font-medium text-gray-700">
+        <ul id="dynamicMenu" class="flex items-center gap-8 py-4 overflow-x-auto hide-scrollbar whitespace-nowrap text-sm font-medium text-gray-700">
             <li><a href="#" class="flex items-center gap-2 hover:text-primary transition-colors"><i class="ph ph-list"></i> Todas as Categorias</a></li>
-            
-            <li class="group/mega static">
-                <a href="#" class="flex items-center gap-1 hover:text-primary transition-colors pb-4 -mb-4">
-                    Eletroportáteis <i class="ph ph-caret-down text-[10px] rotate-icon"></i>
-                </a>
-                <div class="absolute left-0 top-full w-full bg-white border-t border-gray-100 shadow-2xl opacity-0 invisible group-hover/mega:opacity-100 group-hover/mega:visible transition-all duration-300 z-[60] py-10">
-                    <div class="container mx-auto px-4">
-                        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-8">
-                            
-                            <div>
-                                <h4 class="mega-menu-title">Cozinha e Preparo</h4>
-                                <div class="space-y-1">
-                                    <a href="#" class="mega-menu-link">Batedeira</a>
-                                    <a href="#" class="mega-menu-link">Cafeteira</a>
-                                    <a href="#" class="mega-menu-link">Chaleira Elétrica</a>
-                                    <a href="#" class="mega-menu-link">Cilindro de Massa</a>
-                                    <a href="#" class="mega-menu-link">Espremedor de Frutas</a>
-                                    <a href="#" class="mega-menu-link">Fritadeiras (Óleo/Sem Óleo)</a>
-                                    <a href="#" class="mega-menu-link">Liquidificador / Mixer</a>
-                                    <a href="#" class="mega-menu-link">Multiprocessador</a>
-                                    <a href="#" class="mega-menu-link">Panela Elétrica</a>
-                                    <a href="#" class="mega-menu-link">Sanduicheira / Grill</a>
-                                </div>
-                            </div>
+            <!-- Itens serão injetados via JS -->
+        </ul>
+    </div>
+</section>
 
-                            <div>
-                                <h4 class="mega-menu-title">Cuidados com a Casa</h4>
-                                <div class="space-y-1">
-                                    <a href="#" class="mega-menu-link">Aspirador de Pó</a>
-                                    <a href="#" class="mega-menu-link">Aspirador Vertical</a>
-                                    <a href="#" class="mega-menu-link">Robô Aspirador</a>
-                                    <a href="#" class="mega-menu-link">Extratora</a>
-                                    <a href="#" class="mega-menu-link">Ferro de Passar</a>
-                                    <a href="#" class="mega-menu-link">Passadeira a Vapor</a>
-                                    <a href="#" class="mega-menu-link">Fragmentadora de Papel</a>
-                                </div>
-                            </div>
+<!-- ===== HERO SLIDER ===== -->
+<section class="relative overflow-hidden bg-gray-900">
+    <div class="relative h-[450px] md:h-[520px] w-full">
+        <div id="heroTrack" class="flex h-full transition-transform duration-700 ease-out"></div>
+        <button id="heroPrevBtn" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-black/40 hover:bg-black/60 backdrop-blur-sm text-white w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200">
+            <i class="ph ph-caret-left text-2xl"></i>
+        </button>
+        <button id="heroNextBtn" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-black/40 hover:bg-black/60 backdrop-blur-sm text-white w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200">
+            <i class="ph ph-caret-right text-2xl"></i>
+        </button>
+        <div id="heroDots" class="absolute bottom-6 left-0 right-0 flex justify-center gap-3 z-20"></div>
+    </div>
+</section>
 
-                            <div>
-                                <h4 class="mega-menu-title">Cuidados Pessoais</h4>
-                                <div class="space-y-1">
-                                    <a href="#" class="mega-menu-link">Escova Modeladora</a>
-                                    <a href="#" class="mega-menu-link">Escova Rotativa</a>
-                                    <a href="#" class="mega-menu-link">Escova Secadora</a>
-                                    <a href="#" class="mega-menu-link">Secador de Cabelos</a>
-                                </div>
-                            </div>
-
-                            <div>
-                                <h4 class="mega-menu-title">Outros Eletros</h4>
-                                <div class="space-y-1">
-                                    <a href="#" class="mega-menu-link">Centrifuga de Frutas</a>
-                                    <a href="#" class="mega-menu-link">Crepeira / Pipoqueira</a>
-                                    <a href="#" class="mega-menu-link">Panificadora</a>
-                                    <a href="#" class="mega-menu-link">Torradeira / Tostadeira</a>
-                                    <a href="#" class="mega-menu-link">Maquina de Massas</a>
-                                </div>
-                            </div>
-
-                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </li>
-
-            <li class="group/mega static">
-                <a href="#" class="flex items-center gap-1 hover:text-primary transition-colors pb-4 -mb-4">
-                    Refrigeração <i class="ph ph-caret-down text-[10px] rotate-icon"></i>
-                </a>
-                <div class="absolute left-0 top-full w-full bg-white border-t border-gray-100 shadow-2xl opacity-0 invisible group-hover/mega:opacity-100 group-hover/mega:visible transition-all duration-300 z-[60] py-10">
-                    <div class="container mx-auto px-4">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div>
-                                <h4 class="mega-menu-title">Climatização</h4>
-                                <div class="space-y-1">
-                                    <a href="#" class="mega-menu-link">Ar-Condicionado / Portátil</a>
-                                    <a href="#" class="mega-menu-link">Climatizador / Umidificador</a>
-                                    <a href="#" class="mega-menu-link">Ventilador / Circulador</a>
-                                    <a href="#" class="mega-menu-link">Desumidificador</a>
-                                    <a href="#" class="mega-menu-link">Aquecedor / Termoventilador</a>
-                                </div>
-                            </div>
-                            <div>
-                                <h4 class="mega-menu-title">Bebidas e Conservação</h4>
-                                <div class="space-y-1">
-                                    <a href="#" class="mega-menu-link">Adegas</a>
-                                    <a href="#" class="mega-menu-link">Cervejeira / Chopeira</a>
-                                    <a href="#" class="mega-menu-link">Frigobar</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </li>
-
-            <li class="group/mega static">
-    <a href="#" class="flex items-center gap-1 hover:text-primary transition-colors pb-4 -mb-4">
-        Ferramentas <i class="ph ph-caret-down text-[10px] rotate-icon"></i>
-    </a>
-    <div class="absolute left-0 top-full w-full bg-white border-t border-gray-100 shadow-2xl opacity-0 invisible group-hover/mega:opacity-100 group-hover/mega:visible transition-all duration-300 z-[60] py-10">
+<!-- ===== NOVA SEÇÃO CENTRAL ===== -->
+<main>
+    <section class="py-10 bg-[#f9fafb] border-b border-gray-100">
         <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                
-                <div>
-                    <h4 class="mega-menu-title">Ferramentas Elétricas</h4>
-                    <div class="space-y-1">
-                        <a href="#" class="mega-menu-link">Parafusadeiras</a>
-                        <a href="#" class="mega-menu-link">Furadeiras de Impacto</a>
-                        <a href="#" class="mega-menu-link">Marteletes</a>
-                        <a href="#" class="mega-menu-link">Esmerilhadeiras</a>
-                        <a href="#" class="mega-menu-link">Lixadeiras Orbitais</a>
-                        <a href="#" class="mega-menu-link">Serras Tico-Tico / Circulares</a>
-                        <a href="#" class="mega-menu-link">Plainas Elétricas</a>
-                        <a href="#" class="mega-menu-link">Sopradores Térmicos</a>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="mega-menu-title">Manutenção e Limpeza</h4>
-                    <div class="space-y-1">
-                        <a href="#" class="mega-menu-link">Lava Jato (Alta Pressão)</a>
-                        <a href="#" class="mega-menu-link">Aparador de Grama</a>
-                        <a href="#" class="mega-menu-link">Roçadeiras</a>
-                        <a href="#" class="mega-menu-link">Motoesmeril</a>
-                        <a href="#" class="mega-menu-link">Compressores de Ar</a>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="mega-menu-title">Acessórios e Consumíveis</h4>
-                    <div class="space-y-1">
-                        <a href="#" class="mega-menu-link">Discos de Corte / Lixa</a>
-                        <a href="#" class="mega-menu-link">Bits e Ponteiras</a>
-                    </div>
-                </div>
-
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-4">
+                <div class="flex items-center gap-4 px-4"><div class="w-12 h-12 shrink-0 bg-white shadow-sm rounded-full flex items-center justify-center text-primary text-2xl"><i class="ph ph-credit-card"></i></div><div><h3 class="font-bold text-primary text-sm uppercase tracking-wider">Até 3x sem juros</h3><p class="text-xs text-gray-500">No cartão de crédito</p></div></div>
+                <div class="flex items-center gap-4 px-4 border-t pt-6 sm:border-t-0 sm:pt-0 lg:border-l lg:border-gray-200"><div class="w-12 h-12 shrink-0 bg-white shadow-sm rounded-full flex items-center justify-center text-primary text-2xl"><i class="ph ph-truck"></i></div><div><h3 class="font-bold text-primary text-sm uppercase tracking-wider">Entrega ágil</h3><p class="text-xs text-gray-500">Para todo o Brasil</p></div></div>
+                <div class="flex items-center gap-4 px-4 border-t pt-6 lg:border-t-0 lg:pt-0 lg:border-l lg:border-gray-200"><div class="w-12 h-12 shrink-0 bg-white shadow-sm rounded-full flex items-center justify-center text-primary text-2xl"><i class="ph ph-shield-check"></i></div><div><h3 class="font-bold text-primary text-sm uppercase tracking-wider">Compra Segura</h3><p class="text-xs text-gray-500">Criptografia de ponta</p></div></div>
+                <div class="flex items-center gap-4 px-4 border-t pt-6 lg:border-t-0 lg:pt-0 lg:border-l lg:border-gray-200"><div class="w-12 h-12 shrink-0 bg-white shadow-sm rounded-full flex items-center justify-center text-primary text-2xl"><i class="ph ph-whatsapp-logo"></i></div><div><h3 class="font-bold text-primary text-sm uppercase tracking-wider">Suporte Técnico</h3><p class="text-xs text-gray-500">Tire suas dúvidas</p></div></div>
             </div>
         </div>
-    </div>
-</li>
+    </section>
 
-            <li class="group/mega static">
-    <a href="#" class="flex items-center gap-1 hover:text-primary transition-colors pb-4 -mb-4">
-        Utensílios <i class="ph ph-caret-down text-[10px] rotate-icon"></i>
-    </a>
-    <div class="absolute left-0 top-full w-full bg-white border-t border-gray-100 shadow-2xl opacity-0 invisible group-hover/mega:opacity-100 group-hover/mega:visible transition-all duration-300 z-[60] py-10">
+    <section class="py-12 bg-white">
         <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                
-                <div>
-                    <h4 class="mega-menu-title">Cozinha e Organização</h4>
-                    <div class="space-y-1">
-                        <a href="#" class="mega-menu-link">Potes Herméticos</a>
-                        <a href="#" class="mega-menu-link">Moedores de Café</a>
-                        <a href="#" class="mega-menu-link">Balanças de Cozinha</a>
-                        <a href="#" class="mega-menu-link">Escorredores e Suportes</a>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="mega-menu-title">Iluminação</h4>
-                    <div class="space-y-1">
-                        <a href="#" class="mega-menu-link">Lâmpadas LED</a>
-                        <a href="#" class="mega-menu-link">Lâmpadas Decorativas / Filamento</a>
-                        <a href="#" class="mega-menu-link">Spots e Embutidos</a>
-                        <a href="#" class="mega-menu-link">Painéis de LED</a>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="mega-menu-title">Jardim e Externo</h4>
-                    <div class="space-y-1">
-                        <a href="#" class="mega-menu-link">Lâmpadas de Jardim</a>
-                        <a href="#" class="mega-menu-link">Mangueira/Corda</a>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="mega-menu-title">Utilidades Gerais</h4>
-                    <div class="space-y-1">
-                        <a href="#" class="mega-menu-link">Filtros e Purificadores</a>
-                        <a href="#" class="mega-menu-link">Churrasqueira e Acessórios</a>
-                        <a href="#" class="mega-menu-link">Pilhas e Baterias</a>
-                        <a href="#" class="mega-menu-link">Extensões e Adaptadores</a>
-                    </div>
-                </div>
-
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-bold text-primary italic uppercase tracking-tighter">Navegue por Categoria</h2>
+                <div class="h-[2px] flex-grow mx-6 bg-gray-100 hidden md:block"></div>
             </div>
-        </div>
-    </div>
-</li>
-    </section>
-
-    <!-- ===== HERO SLIDER ===== -->
-    <section class="relative overflow-hidden bg-gray-900">
-        <div class="relative h-[450px] md:h-[520px] w-full">
-            <div id="heroTrack" class="flex h-full transition-transform duration-700 ease-out"></div>
-            <button id="heroPrevBtn" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-black/40 hover:bg-black/60 backdrop-blur-sm text-white w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200">
-                <i class="ph ph-caret-left text-2xl"></i>
-            </button>
-            <button id="heroNextBtn" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-black/40 hover:bg-black/60 backdrop-blur-sm text-white w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200">
-                <i class="ph ph-caret-right text-2xl"></i>
-            </button>
-            <div id="heroDots" class="absolute bottom-6 left-0 right-0 flex justify-center gap-3 z-20"></div>
+            <div id="categoryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
         </div>
     </section>
 
-    <!-- ===== NOVA SEÇÃO CENTRAL (Reestruturada) ===== -->
-    <main>
-        <section class="py-10 bg-[#f9fafb] border-b border-gray-100">
-    <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-4">
-            
-            <div class="flex items-center gap-4 px-4">
-                <div class="w-12 h-12 shrink-0 bg-white shadow-sm rounded-full flex items-center justify-center text-primary text-2xl">
-                    <i class="ph ph-credit-card"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-primary text-sm uppercase tracking-wider">Até 3x sem juros</h3>
-                    <p class="text-xs text-gray-500">No cartão de crédito</p>
-                </div>
+    <!-- PRODUTOS EM DESTAQUE -->
+    <section class="py-16 bg-light-gray" id="featuredSection">
+        <div class="container mx-auto px-4 relative">
+            <div class="flex items-end justify-between mb-10">
+                <div><h2 class="text-3xl md:text-4xl font-bold text-primary">Produtos em Destaque</h2><div class="w-20 h-1.5 bg-accent rounded-full mt-2"></div><p class="text-gray-500 mt-2 text-sm">Peças e eletros com alta performance</p></div>
             </div>
-
-            <div class="flex items-center gap-4 px-4 border-t pt-6 sm:border-t-0 sm:pt-0 lg:border-l lg:border-gray-200">
-                <div class="w-12 h-12 shrink-0 bg-white shadow-sm rounded-full flex items-center justify-center text-primary text-2xl">
-                    <i class="ph ph-truck"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-primary text-sm uppercase tracking-wider">Entrega ágil</h3>
-                    <p class="text-xs text-gray-500">Para todo o Brasil</p>
-                </div>
+            <div class="relative group">
+                <button id="featuredPrevBtn" class="absolute -left-5 top-1/2 -translate-y-1/2 z-20 bg-white shadow-xl hover:bg-primary hover:text-white text-primary w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 border border-gray-200 opacity-0 group-hover:opacity-100 focus:opacity-100"><i class="ph ph-caret-left text-2xl"></i></button>
+                <div class="overflow-hidden rounded-2xl"><div id="featuredTrack" class="flex gap-5"></div></div>
+                <button id="featuredNextBtn" class="absolute -right-5 top-1/2 -translate-y-1/2 z-20 bg-white shadow-xl hover:bg-primary hover:text-white text-primary w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 border border-gray-200 opacity-0 group-hover:opacity-100 focus:opacity-100"><i class="ph ph-caret-right text-2xl"></i></button>
             </div>
-
-            <div class="flex items-center gap-4 px-4 border-t pt-6 lg:border-t-0 lg:pt-0 lg:border-l lg:border-gray-200">
-                <div class="w-12 h-12 shrink-0 bg-white shadow-sm rounded-full flex items-center justify-center text-primary text-2xl">
-                    <i class="ph ph-shield-check"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-primary text-sm uppercase tracking-wider">Compra Segura</h3>
-                    <p class="text-xs text-gray-500">Criptografia de ponta</p>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-4 px-4 border-t pt-6 lg:border-t-0 lg:pt-0 lg:border-l lg:border-gray-200">
-                <div class="w-12 h-12 shrink-0 bg-white shadow-sm rounded-full flex items-center justify-center text-primary text-2xl">
-                    <i class="ph ph-whatsapp-logo"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-primary text-sm uppercase tracking-wider">Suporte Técnico</h3>
-                    <p class="text-xs text-gray-500">Tire suas dúvidas</p>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</section>
-<!-- 2. GRID 4X1 -->
-</section>
-
-<section class="py-12 bg-white">
-    <div class="container mx-auto px-4">
-        <div class="flex items-center justify-between mb-8">
-            <h2 class="text-2xl font-bold text-primary italic uppercase tracking-tighter">Navegue por Categoria</h2>
-            <div class="h-[2px] flex-grow mx-6 bg-gray-100 hidden md:block"></div>
-        </div>
-        
-        <div id="categoryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            </div>
-    </div>
-</section>
-
-<section class="py-16 bg-light-gray">
-
-        <!-- 2. VITRINE CARROSSEL: PRODUTOS EM DESTAQUE (is_featured) -->
-        <section class="py-16 bg-light-gray">
-            <div class="container mx-auto px-4 relative">
-                <div class="flex items-end justify-between mb-10">
-                    <div>
-                        <h2 class="text-3xl md:text-4xl font-bold text-primary">Produtos em Destaque</h2>
-                        <div class="w-20 h-1.5 bg-accent rounded-full mt-2"></div>
-                        <p class="text-gray-500 mt-2 text-sm">Peças e eletros com alta performance</p>
-                    </div>
-                </div>
-                <div class="relative group">
-                    <button id="featuredPrevBtn" class="absolute -left-5 top-1/2 -translate-y-1/2 z-20 bg-white shadow-xl hover:bg-primary hover:text-white text-primary w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 border border-gray-200 opacity-0 group-hover:opacity-100 focus:opacity-100">
-                        <i class="ph ph-caret-left text-2xl"></i>
-                    </button>
-                    <div class="overflow-hidden rounded-2xl">
-                        <div id="featuredTrack" class="flex gap-5"></div>
-                    </div>
-                    <button id="featuredNextBtn" class="absolute -right-5 top-1/2 -translate-y-1/2 z-20 bg-white shadow-xl hover:bg-primary hover:text-white text-primary w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 border border-gray-200 opacity-0 group-hover:opacity-100 focus:opacity-100">
-                        <i class="ph ph-caret-right text-2xl"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- 3. BENTO GRID DE SUBCATEGORIAS (1 grande + 4 pequenos) -->
-        <section class="py-16 bg-white">
-            <div class="container mx-auto px-4">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-[260px]">
-                    <!-- Bloco grande vertical (esquerda) -->
-                    <div class="md:col-span-1 md:row-span-2 relative rounded-2xl overflow-hidden group shadow-xl cursor-pointer">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1556911220-e150213ff7ad?auto=format&fit=crop&w=800&q=80');"></div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col items-center justify-center p-6 text-white text-center">
-                            <h3 class="text-2xl font-bold mb-2">Oficina Premium</h3>
-                            <p class="text-sm opacity-90">Diagnóstico gratuito e garantia estendida</p>
-                            <button class="mt-5 bg-white/20 backdrop-blur-sm hover:bg-white hover:text-primary px-5 py-2 rounded-full text-sm font-semibold transition-all">Ver mais →</button>
-                        </div>
-                    </div>
-                    <!-- Blocos pequenos (2x2 à direita) -->
-                    <div class="relative rounded-2xl overflow-hidden group shadow-md cursor-pointer">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?auto=format&fit=crop&w=400&q=80');"></div>
-                        <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white">
-                            <h4 class="font-bold text-xl">Geladeiras</h4>
-                            <span class="text-xs underline mt-2">Ver mais</span>
-                        </div>
-                    </div>
-                    <div class="relative rounded-2xl overflow-hidden group shadow-md cursor-pointer">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=400&q=80');"></div>
-                        <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white">
-                            <h4 class="font-bold text-xl">Máquinas de Lavar</h4>
-                            <span class="text-xs underline mt-2">Ver mais</span>
-                        </div>
-                    </div>
-                    <div class="relative rounded-2xl overflow-hidden group shadow-md cursor-pointer">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1585515325310-e89a39c7d213?auto=format&fit=crop&w=400&q=80');"></div>
-                        <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white">
-                            <h4 class="font-bold text-xl">Micro-ondas</h4>
-                            <span class="text-xs underline mt-2">Ver mais</span>
-                        </div>
-                    </div>
-                    <div class="relative rounded-2xl overflow-hidden group shadow-md cursor-pointer">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1581791055773-5f8d8c3b64f3?auto=format&fit=crop&w=400&q=80');"></div>
-                        <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white">
-                            <h4 class="font-bold text-xl">Refrigeração</h4>
-                            <span class="text-xs underline mt-2">Ver mais</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 4. VITRINE "PARA SUA CASA" (Carrossel com produtos Utensílios) -->
-        <section class="py-16 bg-light-gray">
-            <div class="container mx-auto px-4 relative">
-                <div class="flex items-end justify-between mb-10">
-                    <div>
-                        <h2 class="text-3xl md:text-4xl font-bold text-primary">Para sua casa</h2>
-                        <div class="w-20 h-1.5 bg-accent rounded-full mt-2"></div>
-                        <p class="text-gray-500 mt-2 text-sm">Utensílios e eletroportáteis com até 3x sem juros</p>
-                    </div>
-                </div>
-                <div class="relative group">
-                    <button id="homePrevBtn" class="absolute -left-5 top-1/2 -translate-y-1/2 z-20 bg-white shadow-xl hover:bg-primary hover:text-white text-primary w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 border border-gray-200 opacity-0 group-hover:opacity-100 focus:opacity-100">
-                        <i class="ph ph-caret-left text-2xl"></i>
-                    </button>
-                    <div class="overflow-hidden rounded-2xl">
-                        <div id="homeTrack" class="flex gap-5"></div>
-                    </div>
-                    <button id="homeNextBtn" class="absolute -right-5 top-1/2 -translate-y-1/2 z-20 bg-white shadow-xl hover:bg-primary hover:text-white text-primary w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 border border-gray-200 opacity-0 group-hover:opacity-100 focus:opacity-100">
-                        <i class="ph ph-caret-right text-2xl"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- ===== ATENDIMENTO PREMIUM + MODAIS ===== -->
-    <section class="py-16 bg-primary text-white">
-        <div class="container mx-auto px-4 max-w-5xl text-center">
-            <h2 class="text-3xl font-bold mb-3">Atendimento Especializado</h2>
-            <p class="text-white/70 text-lg mb-10">Segunda a Sexta: 08:00 às 18:00 · Sábado: 08:00 às 12:00</p>
-            <div class="flex flex-wrap justify-center gap-6">
-                <button id="openChatModalBtn" class="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:bg-accent hover:border-accent transition-all duration-300 flex items-center gap-3 shadow-xl">
-                    <i class="ph ph-chats-circle text-2xl"></i> Iniciar Conversa
-                </button>
-                <button id="openCallModalBtn" class="bg-accent text-white px-10 py-5 rounded-2xl font-bold text-lg hover:scale-105 transition-all duration-300 flex items-center gap-3 shadow-xl">
-                    <i class="ph ph-phone-call text-2xl"></i> Ligar agora
-                </button>
-            </div>
-            <p class="text-white/50 text-sm mt-8 flex items-center justify-center gap-1"><i class="ph ph-shield-check"></i> Atendimento humanizado e seguro</p>
         </div>
     </section>
 
-    <!-- MODAIS -->
-    <div id="chatModal" class="fixed inset-0 z-[100] flex items-center justify-center p-5 invisible opacity-0 transition-all duration-300">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="closeModal('chatModal')"></div>
-        <div class="relative bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl transform transition-all duration-300 scale-95">
-            <button onclick="closeModal('chatModal')" class="absolute top-5 right-5 text-gray-400 hover:text-primary"><i class="ph ph-x text-2xl"></i></button>
-            <h3 class="text-2xl font-bold text-primary mb-3">Como prefere falar?</h3>
-            <p class="text-gray-500 mb-8 text-sm">Escolha o canal para atendimento rápido.</p>
-            <div class="space-y-4">
-                <a href="#" class="flex items-center gap-5 p-5 rounded-2xl border-2 border-gray-100 hover:border-green-500 hover:bg-green-50/50 transition-all">
-                    <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-2xl"><i class="ph ph-whatsapp-logo"></i></div>
-                    <div><span class="font-bold text-gray-800 block">WhatsApp</span><span class="text-xs text-gray-500">Resposta rápida</span></div>
-                    <i class="ph ph-arrow-right ml-auto text-gray-400"></i>
-                </a>
-                <a href="#" class="flex items-center gap-5 p-5 rounded-2xl border-2 border-gray-100 hover:border-primary hover:bg-blue-50/50 transition-all">
-                    <div class="w-12 h-12 rounded-full bg-blue-100 text-primary flex items-center justify-center text-2xl"><i class="ph ph-envelope"></i></div>
-                    <div><span class="font-bold text-gray-800 block">E-mail</span><span class="text-xs text-gray-500">Resposta até 24 - 48h</span></div>
-                    <i class="ph ph-arrow-right ml-auto text-gray-400"></i>
-                </a>
+    <!-- BENTO GRID -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-[260px]">
+                <div class="md:col-span-1 md:row-span-2 relative rounded-2xl overflow-hidden group shadow-xl cursor-pointer"><div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1556911220-e150213ff7ad?auto=format&fit=crop&w=800&q=80');"></div><div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col items-center justify-center p-6 text-white text-center"><h3 class="text-2xl font-bold mb-2">Oficina Premium</h3><p class="text-sm opacity-90">Diagnóstico gratuito e garantia estendida</p><button class="mt-5 bg-white/20 backdrop-blur-sm hover:bg-white hover:text-primary px-5 py-2 rounded-full text-sm font-semibold transition-all">Ver mais →</button></div></div>
+                <div class="relative rounded-2xl overflow-hidden group shadow-md cursor-pointer"><div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?auto=format&fit=crop&w=400&q=80');"></div><div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white"><h4 class="font-bold text-xl">Geladeiras</h4><span class="text-xs underline mt-2">Ver mais</span></div></div>
+                <div class="relative rounded-2xl overflow-hidden group shadow-md cursor-pointer"><div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=400&q=80');"></div><div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white"><h4 class="font-bold text-xl">Máquinas de Lavar</h4><span class="text-xs underline mt-2">Ver mais</span></div></div>
+                <div class="relative rounded-2xl overflow-hidden group shadow-md cursor-pointer"><div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1585515325310-e89a39c7d213?auto=format&fit=crop&w=400&q=80');"></div><div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white"><h4 class="font-bold text-xl">Micro-ondas</h4><span class="text-xs underline mt-2">Ver mais</span></div></div>
+                <div class="relative rounded-2xl overflow-hidden group shadow-md cursor-pointer"><div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1581791055773-5f8d8c3b64f3?auto=format&fit=crop&w=400&q=80');"></div><div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white"><h4 class="font-bold text-xl">Refrigeração</h4><span class="text-xs underline mt-2">Ver mais</span></div></div>
             </div>
         </div>
-    </div>
-    <div id="callModal" class="fixed inset-0 z-[100] flex items-center justify-center p-5 invisible opacity-0 transition-all duration-300">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="closeModal('callModal')"></div>
-        <div class="relative bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl transform transition-all duration-300 scale-95">
-            <button onclick="closeModal('callModal')" class="absolute top-5 right-5 text-gray-400 hover:text-primary"><i class="ph ph-x text-2xl"></i></button>
-            <h3 class="text-2xl font-bold text-primary mb-3">Para qual setor deseja ligar?</h3>
-            <div class="space-y-3 mt-4">
-                <a href="#" class="flex items-center gap-4 p-4 rounded-xl border border-gray-200 hover:border-accent hover:bg-accent/5"><i class="ph ph-shopping-cart text-accent"></i><span>Vendas e Peças</span></a>
-                <a href="#" class="flex items-center gap-4 p-4 rounded-xl border border-gray-200 hover:border-accent hover:bg-accent/5"><i class="ph ph-wrench text-blue-600"></i><span>Assistência Técnica</span></a>
-                <a href="#" class="flex items-center gap-4 p-4 rounded-xl border border-gray-200 hover:border-accent hover:bg-accent/5"><i class="ph ph-barbell text-primary"></i><span>Especialista Brastemp/Consul</span></a>
-            </div>
-        </div>
-    </div>
+    </section>
 
-    <footer class="bg-primary text-white pt-16 pb-8">
+    <!-- PARA SUA CASA -->
+    <section class="py-16 bg-light-gray" id="homeSection">
+        <div class="container mx-auto px-4 relative">
+            <div class="flex items-end justify-between mb-10">
+                <div><h2 class="text-3xl md:text-4xl font-bold text-primary">Para sua casa</h2><div class="w-20 h-1.5 bg-accent rounded-full mt-2"></div><p class="text-gray-500 mt-2 text-sm">Utensílios e eletroportáteis com até 3x sem juros</p></div>
+            </div>
+            <div class="relative group">
+                <button id="homePrevBtn" class="absolute -left-5 top-1/2 -translate-y-1/2 z-20 bg-white shadow-xl hover:bg-primary hover:text-white text-primary w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 border border-gray-200 opacity-0 group-hover:opacity-100 focus:opacity-100"><i class="ph ph-caret-left text-2xl"></i></button>
+                <div class="overflow-hidden rounded-2xl"><div id="homeTrack" class="flex gap-5"></div></div>
+                <button id="homeNextBtn" class="absolute -right-5 top-1/2 -translate-y-1/2 z-20 bg-white shadow-xl hover:bg-primary hover:text-white text-primary w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 border border-gray-200 opacity-0 group-hover:opacity-100 focus:opacity-100"><i class="ph ph-caret-right text-2xl"></i></button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- ===== ATENDIMENTO ===== -->
+<section class="py-16 bg-primary text-white">
+    <div class="container mx-auto px-4 max-w-5xl text-center">
+        <h2 class="text-3xl font-bold mb-3">Atendimento Especializado</h2>
+        <p class="text-white/70 text-lg mb-10">Segunda a Sexta: 08:00 às 18:00 · Sábado: 08:00 às 12:00</p>
+        <div class="flex flex-wrap justify-center gap-6">
+            <button id="openChatModalBtn" class="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:bg-accent hover:border-accent transition-all duration-300 flex items-center gap-3 shadow-xl"><i class="ph ph-chats-circle text-2xl"></i> Iniciar Conversa</button>
+            <button id="openCallModalBtn" class="bg-accent text-white px-10 py-5 rounded-2xl font-bold text-lg hover:scale-105 transition-all duration-300 flex items-center gap-3 shadow-xl"><i class="ph ph-phone-call text-2xl"></i> Ligar agora</button>
+        </div>
+        <p class="text-white/50 text-sm mt-8 flex items-center justify-center gap-1"><i class="ph ph-shield-check"></i> Atendimento humanizado e seguro</p>
+    </div>
+</section>
+
+<!-- MODAIS FIXOS (chat/call) -->
+<div id="chatModal" class="fixed inset-0 z-[100] flex items-center justify-center p-5 invisible opacity-0 transition-all duration-300">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="closeModal('chatModal')"></div>
+    <div class="relative bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl transform transition-all duration-300 scale-95">
+        <button onclick="closeModal('chatModal')" class="absolute top-5 right-5 text-gray-400 hover:text-primary"><i class="ph ph-x text-2xl"></i></button>
+        <h3 class="text-2xl font-bold text-primary mb-3">Como prefere falar?</h3>
+        <p class="text-gray-500 mb-8 text-sm">Escolha o canal para atendimento rápido.</p>
+        <div class="space-y-4">
+            <a href="#" class="flex items-center gap-5 p-5 rounded-2xl border-2 border-gray-100 hover:border-green-500 hover:bg-green-50/50 transition-all"><div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-2xl"><i class="ph ph-whatsapp-logo"></i></div><div><span class="font-bold text-gray-800 block">WhatsApp</span><span class="text-xs text-gray-500">Resposta rápida</span></div><i class="ph ph-arrow-right ml-auto text-gray-400"></i></a>
+            <a href="#" class="flex items-center gap-5 p-5 rounded-2xl border-2 border-gray-100 hover:border-primary hover:bg-blue-50/50 transition-all"><div class="w-12 h-12 rounded-full bg-blue-100 text-primary flex items-center justify-center text-2xl"><i class="ph ph-envelope"></i></div><div><span class="font-bold text-gray-800 block">E-mail</span><span class="text-xs text-gray-500">Resposta até 24 - 48h</span></div><i class="ph ph-arrow-right ml-auto text-gray-400"></i></a>
+        </div>
+    </div>
+</div>
+<div id="callModal" class="fixed inset-0 z-[100] flex items-center justify-center p-5 invisible opacity-0 transition-all duration-300">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="closeModal('callModal')"></div>
+    <div class="relative bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl transform transition-all duration-300 scale-95">
+        <button onclick="closeModal('callModal')" class="absolute top-5 right-5 text-gray-400 hover:text-primary"><i class="ph ph-x text-2xl"></i></button>
+        <h3 class="text-2xl font-bold text-primary mb-3">Para qual setor deseja ligar?</h3>
+        <div class="space-y-3 mt-4">
+            <a href="#" class="flex items-center gap-4 p-4 rounded-xl border border-gray-200 hover:border-accent hover:bg-accent/5"><i class="ph ph-shopping-cart text-accent"></i><span>Vendas e Peças</span></a>
+            <a href="#" class="flex items-center gap-4 p-4 rounded-xl border border-gray-200 hover:border-accent hover:bg-accent/5"><i class="ph ph-wrench text-blue-600"></i><span>Assistência Técnica</span></a>
+            <a href="#" class="flex items-center gap-4 p-4 rounded-xl border border-gray-200 hover:border-accent hover:bg-accent/5"><i class="ph ph-barbell text-primary"></i><span>Especialista Brastemp/Consul</span></a>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-primary text-white pt-16 pb-8">
     <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-            
             <div class="space-y-6">
-                <img src="./logo-moro.png" alt="Elétrica Moro" class="h-12 w-auto brightness-0 invert" onerror="this.src='https://placehold.co/200x60/0a2540/white?text=Elétrica+Moro'">
-                <p class="text-white/60 text-sm leading-relaxed">
-                    Especialistas em peças para eletrodomésticos e assistência técnica autorizada. Qualidade e confiança para o seu lar desde 1990.
-                </p>
+                <img src="img/logo-moro.webp" alt="Elétrica Moro" class="h-12 w-auto object-contain brightness-0 invert" onerror="this.src='https://placehold.co/200x48/0a2540/white?text=MORO'">
+                <p class="text-white/60 text-sm leading-relaxed">Especialistas em peças para eletrodomésticos e assistência técnica autorizada. Qualidade e confiança para o seu lar desde 1990.</p>
                 <div class="flex gap-4">
-                    <a href="https://www.instagram.com/eletricamorooficial/" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent transition-all">
-                        <i class="ph ph-instagram-logo text-xl"></i>
-                    </a>
-                    <a href="https://www.facebook.com/eletricamoro/?locale=pt_BR" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent transition-all">
-                        <i class="ph ph-facebook-logo text-xl"></i>
-                    </a>
+                    <a href="https://www.instagram.com/eletricamorooficial/" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent transition-all"><i class="ph ph-instagram-logo text-xl"></i></a>
+                    <a href="https://www.facebook.com/eletricamoro/?locale=pt_BR" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent transition-all"><i class="ph ph-facebook-logo text-xl"></i></a>
                 </div>
             </div>
-
-            <div>
-                <h4 class="text-lg font-bold mb-6 relative inline-block">
-                    Institucional
-                    <span class="absolute -bottom-2 left-0 w-8 h-1 bg-accent"></span>
-                </h4>
-                <ul class="space-y-4 text-sm text-white/60">
-                    <li><a href="/sobre-nos" class="hover:text-white hover:translate-x-1 flex items-center gap-2 transition-all"><i class="ph ph-caret-right text-[10px]"></i> Sobre Nós</a></li>
-                    <li><a href="/entrega" class="hover:text-white hover:translate-x-1 flex items-center gap-2 transition-all"><i class="ph ph-caret-right text-[10px]"></i> Política de Entrega</a></li>
-                    <li><a href="/privacidade" class="hover:text-white hover:translate-x-1 flex items-center gap-2 transition-all"><i class="ph ph-caret-right text-[10px]"></i> Privacidade</a></li>
-                    <li><a href="/termos" class="hover:text-white hover:translate-x-1 flex items-center gap-2 transition-all"><i class="ph ph-caret-right text-[10px]"></i> Termos e Condições</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="text-lg font-bold mb-6 relative inline-block">
-                    Atendimento
-                    <span class="absolute -bottom-2 left-0 w-8 h-1 bg-accent"></span>
-                </h4>
-                <ul class="space-y-4 text-sm text-white/60">
-                    <li class="flex items-start gap-3">
-                        <i class="ph ph-map-pin text-xl text-accent"></i>
-                        <span>Rua Santa Sofia 53 - Ideal<br>Novo Hamburgo - RS, 93320-050</span>
-                    </li>
-                    <li class="flex items-center gap-3">
-                        <i class="ph ph-phone text-xl text-accent"></i>
-                        <span>(51) 3581-5940</span>
-                    </li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="text-lg font-bold mb-6 relative inline-block">
-                    Segurança
-                    <span class="absolute -bottom-2 left-0 w-8 h-1 bg-accent"></span>
-                </h4>
-                <div class="flex flex-wrap gap-3 mb-6">
-                    <div class="bg-white/5 p-2 rounded border border-white/10 flex items-center gap-2 grayscale hover:grayscale-0 transition-all cursor-help">
-                        <i class="ph ph-shield-check text-2xl text-green-400"></i>
-                        <span class="text-[10px] leading-tight uppercase font-bold">Site<br>Seguro</span>
-                    </div>
-                    <div class="bg-white/5 p-2 rounded border border-white/10 flex items-center gap-2 grayscale hover:grayscale-0 transition-all cursor-help">
-                        <i class="ph ph-lock-key text-2xl text-blue-400"></i>
-                        <span class="text-[10px] leading-tight uppercase font-bold">SSL<br>256-bit</span>
-                    </div>
-                </div>
-                <h4 class="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Pagamento</h4>
-                <div class="flex flex-wrap gap-2 opacity-60">
-                    <i class="ph ph-credit-card text-2xl"></i>
-                    <i class="ph ph-barcode text-2xl"></i>
-                    <i class="ph ph-pix-logo text-2xl"></i>
-                </div>
-            </div>
+            <div><h4 class="text-lg font-bold mb-6 relative inline-block">Institucional<span class="absolute -bottom-2 left-0 w-8 h-1 bg-accent"></span></h4><ul class="space-y-4 text-sm text-white/60"><li><a href="/sobre-nos" class="hover:text-white hover:translate-x-1 flex items-center gap-2 transition-all"><i class="ph ph-caret-right text-[10px]"></i> Sobre Nós</a></li><li><a href="/entrega" class="hover:text-white hover:translate-x-1 flex items-center gap-2 transition-all"><i class="ph ph-caret-right text-[10px]"></i> Política de Entrega</a></li><li><a href="/privacidade" class="hover:text-white hover:translate-x-1 flex items-center gap-2 transition-all"><i class="ph ph-caret-right text-[10px]"></i> Privacidade</a></li><li><a href="/termos" class="hover:text-white hover:translate-x-1 flex items-center gap-2 transition-all"><i class="ph ph-caret-right text-[10px]"></i> Termos e Condições</a></li></ul></div>
+            <div><h4 class="text-lg font-bold mb-6 relative inline-block">Atendimento<span class="absolute -bottom-2 left-0 w-8 h-1 bg-accent"></span></h4><ul class="space-y-4 text-sm text-white/60"><li class="flex items-start gap-3"><i class="ph ph-map-pin text-xl text-accent"></i><span>Rua Santa Sofia 53 - Ideal<br>Novo Hamburgo - RS, 93320-050</span></li><li class="flex items-center gap-3"><i class="ph ph-phone text-xl text-accent"></i><span>(51) 3581-5940</span></li></ul></div>
+            <div><h4 class="text-lg font-bold mb-6 relative inline-block">Segurança<span class="absolute -bottom-2 left-0 w-8 h-1 bg-accent"></span></h4><div class="flex flex-wrap gap-3 mb-6"><div class="bg-white/5 p-2 rounded border border-white/10 flex items-center gap-2"><i class="ph ph-shield-check text-2xl text-green-400"></i><span class="text-[10px] leading-tight uppercase font-bold">Site<br>Seguro</span></div><div class="bg-white/5 p-2 rounded border border-white/10 flex items-center gap-2"><i class="ph ph-lock-key text-2xl text-blue-400"></i><span class="text-[10px] leading-tight uppercase font-bold">SSL<br>256-bit</span></div></div><h4 class="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Pagamento</h4><div class="flex flex-wrap gap-2 opacity-60"><i class="ph ph-credit-card text-2xl"></i><i class="ph ph-barcode text-2xl"></i><i class="ph ph-pix-logo text-2xl"></i></div></div>
         </div>
-
         <div class="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-white/40 text-[11px]">
             <p>© <span id="current-year"></span> Elétrica Moro. CNPJ: 07.907.008/0001-85. Assistencia tecnica autorizada - Posto de peças.</p>
-            <div class="flex gap-6">
-                <span>Desenvolvido com ❤️</span>
-            </div>
+            <div class="flex gap-6"><span>Desenvolvido com ❤️</span></div>
         </div>
     </div>
 </footer>
 
-    <script>
-        (function() {
-        // ATUALIZAÇÃO AUTOMÁTICA DO ANO
-        const yearElement = document.getElementById('current-year');
-        if (yearElement) yearElement.textContent = new Date().getFullYear();
-    
-        // ---------- Função auxiliar para buscar produtos ----------
-        async function fetchProductsFromAPI() {
+<script>
+    (function() {
+        // ---------- CONFIGURAÇÃO ----------
+        const API_BASE = ''; // ajuste se necessário
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // ---------- MODAL GLOBAL (substitui alerts) ----------
+        window.closeGlobalModal = function() {
+            const modal = document.getElementById('globalModal');
+            modal.classList.add('invisible', 'opacity-0');
+            modal.style.pointerEvents = 'none';
+        };
+        window.showGlobalModal = function(htmlContent) {
+            const modal = document.getElementById('globalModal');
+            const contentDiv = document.getElementById('globalModalContent');
+            contentDiv.innerHTML = htmlContent;
+            modal.classList.remove('invisible', 'opacity-0');
+            modal.style.pointerEvents = 'auto';
+            // Aplica animação
+            setTimeout(() => contentDiv.classList.remove('scale-95'), 10);
+        };
+        window.showMessage = (title, message, type='info') => {
+            const icon = type === 'success' ? '✅' : 'ℹ️';
+            showGlobalModal(`
+                <button onclick="closeGlobalModal()" class="absolute top-5 right-5 text-gray-400 hover:text-primary"><i class="ph ph-x text-2xl"></i></button>
+                <h3 class="text-xl font-bold text-primary mb-2">${icon} ${title}</h3>
+                <p class="text-gray-600 mb-6">${message}</p>
+                <button onclick="closeGlobalModal()" class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-secondary transition">Ok</button>
+            `);
+        };
+        window.showConfirm = (title, message, onConfirm) => {
+            showGlobalModal(`
+                <button onclick="closeGlobalModal()" class="absolute top-5 right-5 text-gray-400 hover:text-primary"><i class="ph ph-x text-2xl"></i></button>
+                <h3 class="text-xl font-bold text-primary mb-2">${title}</h3>
+                <p class="text-gray-600 mb-6">${message}</p>
+                <div class="flex gap-3">
+                    <button onclick="closeGlobalModal()" class="flex-1 border border-gray-300 py-3 rounded-xl font-semibold">Cancelar</button>
+                    <button id="confirmActionBtn" class="flex-1 bg-accent text-white py-3 rounded-xl font-semibold">Confirmar</button>
+                </div>
+            `);
+            document.getElementById('confirmActionBtn').addEventListener('click', () => { closeGlobalModal(); onConfirm(); });
+        };
+
+        // Modais de conta/carrinho
+        window.openAccountModal = () => {
+            showGlobalModal(`
+                <button onclick="closeGlobalModal()" class="absolute top-5 right-5 text-gray-400 hover:text-primary"><i class="ph ph-x text-2xl"></i></button>
+                <h3 class="text-2xl font-bold text-primary mb-4">Minha Conta</h3>
+                <div class="space-y-3">
+                    <button class="w-full text-left px-4 py-3 bg-gray-50 rounded-xl hover:bg-primary/5" onclick="showMessage('Aviso','Funcionalidade em desenvolvimento.','info')"><i class="ph ph-package mr-2"></i>Meus Pedidos</button>
+                    <button class="w-full text-left px-4 py-3 bg-gray-50 rounded-xl hover:bg-primary/5" onclick="showMessage('Aviso','Funcionalidade em desenvolvimento.','info')"><i class="ph ph-gear mr-2"></i>Meus Dados</button>
+                    <button class="w-full text-left px-4 py-3 bg-gray-50 rounded-xl text-accent hover:bg-red-50" onclick="showMessage('Logout','Você saiu da conta.')"><i class="ph ph-sign-out mr-2"></i>Sair</button>
+                </div>
+            `);
+        };
+        window.openCartModal = () => {
+            showGlobalModal(`
+                <button onclick="closeGlobalModal()" class="absolute top-5 right-5 text-gray-400 hover:text-primary"><i class="ph ph-x text-2xl"></i></button>
+                <h3 class="text-2xl font-bold text-primary mb-4">🛒 Seu Carrinho</h3>
+                <p class="text-gray-500">Nenhum item no carrinho.</p>
+                <button onclick="closeGlobalModal()" class="mt-6 w-full bg-primary text-white py-3 rounded-xl">Continuar comprando</button>
+            `);
+        };
+
+        // Helpers para modais de atendimento (já existentes)
+        window.closeModal = (id) => {
+            const m = document.getElementById(id);
+            m.classList.add('invisible', 'opacity-0');
+        };
+        document.getElementById('openChatModalBtn').addEventListener('click', (e) => {
+            e.preventDefault(); document.getElementById('chatModal').classList.remove('invisible','opacity-0');
+        });
+        document.getElementById('openCallModalBtn').addEventListener('click', (e) => {
+            e.preventDefault(); document.getElementById('callModal').classList.remove('invisible','opacity-0');
+        });
+
+        // ---------- API: buscar categorias e construir menu + grid ----------
+        async function fetchCategories() {
             try {
-                const response = await fetch('/api/products');
-                if (!response.ok) throw new Error('Erro ao buscar produtos');
-                const data = await response.json();
-                return Array.isArray(data) ? data : [];
-            } catch (error) {
-                console.error('Falha na API de produtos:', error);
-                return [];
-            }
+                const res = await fetch('/api/categories');
+                if (!res.ok) throw new Error('Erro categorias');
+                return await res.json();
+            } catch(e) { console.warn('Usando fallback categorias'); return []; }
         }
 
-        // ---------- Renderização de card (com fallback de imagem) ----------
+        async function buildDynamicMenu() {
+            const menuContainer = document.getElementById('dynamicMenu');
+            const categories = await fetchCategories();
+            if (!categories.length) {
+                // fallback simples
+                menuContainer.innerHTML += `<li><a href="#" class="hover:text-primary">Eletroportáteis</a></li><li><a href="#" class="hover:text-primary">Refrigeração</a></li>`;
+                return categories;
+            }
+            // Limpa após "Todas as Categorias"
+            const firstItem = menuContainer.firstElementChild;
+            menuContainer.innerHTML = ''; menuContainer.appendChild(firstItem);
+            
+            categories.forEach(cat => {
+                const li = document.createElement('li');
+                li.className = 'group/mega static';
+                const subcats = cat.subcategories || [];
+                const hasSub = subcats.length > 0;
+                li.innerHTML = `
+                    <a href="#" class="flex items-center gap-1 hover:text-primary transition-colors pb-4 -mb-4">
+                        ${cat.name} ${hasSub ? '<i class="ph ph-caret-down text-[10px] rotate-icon"></i>' : ''}
+                    </a>
+                    ${hasSub ? `
+                    <div class="absolute left-0 top-full w-full bg-white border-t border-gray-100 shadow-2xl opacity-0 invisible group-hover/mega:opacity-100 group-hover/mega:visible transition-all duration-300 z-[60] py-10">
+                        <div class="container mx-auto px-4">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                                ${subcats.map(sub => `
+                                    <div>
+                                        <h4 class="mega-menu-title">${sub.name}</h4>
+                                        <div class="space-y-1">
+                                            <a href="#" class="mega-menu-link">Ver todos</a>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>` : ''}
+                `;
+                menuContainer.appendChild(li);
+            });
+            return categories;
+        }
+
+        async function loadCategoryGrid() {
+            const grid = document.getElementById('categoryGrid');
+            const categories = await fetchCategories();
+            const icons = ['ph ph-blender', 'ph ph-snowflake', 'ph ph-wrench', 'ph ph-lamp'];
+            grid.innerHTML = categories.slice(0,8).map((cat, idx) => {
+                const visual = cat.imageUrl
+                    ? `<div class="w-full h-36 overflow-hidden rounded-xl mb-4">
+                           <img src="${cat.imageUrl}" alt="${cat.name}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.parentElement.outerHTML='<div class=\\'w-16 h-16 rounded-full bg-white text-primary flex items-center justify-center text-3xl mb-4 shadow-sm group-hover:bg-accent group-hover:text-white transition-colors\\'><i class=\\'${icons[idx % icons.length]}\\'></i></div>'">
+                       </div>`
+                    : `<div class="w-16 h-16 rounded-full bg-white text-primary flex items-center justify-center text-3xl mb-4 shadow-sm group-hover:bg-accent group-hover:text-white transition-colors">
+                           <i class="${icons[idx % icons.length]}"></i>
+                       </div>`;
+                return `
+                <a href="#" class="group relative overflow-hidden rounded-2xl bg-light-gray p-6 flex flex-col items-center text-center transition-all duration-300 hover:bg-primary hover:shadow-2xl hover:-translate-y-2">
+                    ${visual}
+                    <h3 class="font-bold text-primary group-hover:text-white text-lg">${cat.name}</h3>
+                    <p class="text-gray-500 group-hover:text-white/70 text-[11px] uppercase tracking-widest mt-1">${cat.subCategories?.length || cat.subcategories?.length || 0} subcategorias</p>
+                </a>`;
+            }).join('');
+        }
+
+        // ---------- API: produtos ----------
+        async function fetchProducts() {
+            try {
+                const res = await fetch('/api/products');
+                if (!res.ok) throw new Error('Erro produtos');
+                return await res.json();
+            } catch(e) { console.warn('Erro ao buscar produtos:', e); return []; }
+        }
+
+        // Função auxiliar para embaralhar array (para variar os produtos entre os carrosséis)
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
         function renderProductCard(product, showInstallment = true) {
-            const price = typeof product.price === 'number' ? product.price : parseFloat(product.price) || 0;
+            const price = Number(product.price) || 0;
             const parcelas = 3;
             const valorParcela = price / parcelas;
-            const installmentText = showInstallment
-                ? `<div class="text-[11px] text-gray-500 mt-1">ou ${parcelas}x de R$ ${valorParcela.toFixed(2)} <span class="font-semibold">sem juros</span></div>`
-                : '';
+            const installmentText = showInstallment ? `<div class="text-[11px] text-gray-500 mt-1">ou ${parcelas}x de R$ ${valorParcela.toFixed(2)} <span class="font-semibold">sem juros</span></div>` : '';
             const desconto = price > 120 ? Math.floor(Math.random() * 12 + 5) : 0;
             const precoComDesconto = (price * (1 - desconto / 100)).toFixed(2);
-            const imageUrl = product.image_url && product.image_url.trim() !== ''
-                ? product.image_url
-                : 'https://placehold.co/400x400?text=Eletrica+Moro';
+            
+            // imagens: array ou string, fallback para placeholder local
+            let imageUrl = 'img/placeholder.png';
+            if (product.images && Array.isArray(product.images) && product.images.length) {
+                imageUrl = product.images[0];
+            } else if (product.image_url) {
+                imageUrl = product.image_url;
+            }
 
+            // tags técnicas
+            const specs = [product.brand, product.model, product.voltage].filter(Boolean).join(' · ');
+            
             return `
                 <div class="bg-white rounded-2xl overflow-hidden group hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] border border-gray-100 relative flex flex-col h-full">
                     ${desconto > 0 ? `<div class="absolute top-3 left-3 z-10 bg-accent text-white text-[10px] font-bold px-2.5 py-1 rounded-full">-${desconto}%</div>` : ''}
                     <div class="p-4 flex items-center justify-center bg-gray-50">
-                        <img src="${imageUrl}" alt="${product.name}" class="product-img w-full h-auto max-h-40 object-contain" loading="lazy" onerror="this.src='https://placehold.co/400x400?text=Eletrica+Moro'">
+                        <img src="${imageUrl}" alt="${product.name}" class="product-img w-full h-auto max-h-40 object-contain" loading="lazy" onerror="this.src='img/placeholder.png'">
                     </div>
                     <div class="p-4 flex flex-col flex-grow">
                         <h3 class="text-sm font-semibold text-gray-800 line-clamp-2 min-h-[2.5rem]">${product.name}</h3>
+                        ${specs ? `<p class="text-[10px] text-gray-400 mt-1 truncate">${specs}</p>` : ''}
                         <div class="mt-2">
                             ${desconto > 0 ? `<span class="text-gray-400 text-xs line-through">R$ ${price.toFixed(2)}</span>` : ''}
                             <div class="text-xl font-bold text-primary">R$ ${desconto > 0 ? precoComDesconto : price.toFixed(2)}</div>
                             ${installmentText}
                         </div>
-                        <button class="mt-4 w-full bg-primary/5 hover:bg-primary text-primary hover:text-white py-2.5 rounded-xl text-sm font-semibold transition-all duration-300">Adicionar</button>
+                        <button class="add-to-cart-btn mt-4 w-full bg-primary/5 hover:bg-primary text-primary hover:text-white py-2.5 rounded-xl text-sm font-semibold transition-all duration-300" data-product='${JSON.stringify({name: product.name, id: product.id}).replace(/'/g, "&apos;")}'>Adicionar</button>
                     </div>
                 </div>
             `;
         }
 
-        // ---------- Inicializador genérico de carrossel ----------
+        // Carrossel genérico
         function initCarousel(trackId, prevId, nextId, products, getVisibleCount) {
             const track = document.getElementById(trackId);
             if (!track) return;
-
-            let currentIndex = 0;
-            let cardWidth = 0;
-            let isDragging = false, startX = 0, currentTranslate = 0, prevTranslate = 0;
+            let currentIndex = 0, cardWidth = 0, isDragging = false, startX = 0, prevTranslate = 0;
 
             function render() {
-                if (!track) return;
-                track.innerHTML = products.map(() => {
-                    const cardClass = trackId === 'featuredTrack' ? 'feature-card' : 'home-card';
-                    return `<div class="${cardClass}"></div>`;
-                }).join('');
-                // Preenche os cards com o conteúdo real
+                track.innerHTML = products.map(() => `<div class="${trackId === 'featuredTrack' ? 'feature-card' : 'home-card'}"></div>`).join('');
                 const cards = track.children;
-                products.forEach((prod, idx) => {
-                    if (cards[idx]) {
-                        cards[idx].innerHTML = renderProductCard(prod, true);
-                    }
-                });
+                products.forEach((prod, idx) => { if (cards[idx]) cards[idx].innerHTML = renderProductCard(prod, true); });
                 setTimeout(() => updatePosition(), 30);
+                attachAddToCartListeners();
             }
-
             function updatePosition() {
                 const firstCard = track.querySelector(`.${trackId === 'featuredTrack' ? 'feature-card' : 'home-card'}`);
                 if (firstCard) {
@@ -840,217 +575,101 @@ nav ul {
                     cardWidth = firstCard.offsetWidth + gap;
                     const maxIndex = Math.max(0, products.length - getVisibleCount());
                     if (currentIndex > maxIndex) currentIndex = maxIndex;
-                    if (currentIndex < 0) currentIndex = 0;
                     track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
                     prevTranslate = -currentIndex * cardWidth;
                 }
             }
-
             function slide(direction) {
                 const visible = getVisibleCount();
                 let newIndex = currentIndex + (direction === 'next' ? visible : -visible);
                 const max = Math.max(0, products.length - visible);
                 newIndex = Math.min(max, Math.max(0, newIndex));
-                if (newIndex !== currentIndex) {
-                    currentIndex = newIndex;
-                    updatePosition();
-                }
+                if (newIndex !== currentIndex) { currentIndex = newIndex; updatePosition(); }
             }
-
-            // Drag suave
-            function dragStart(e) {
-                isDragging = true;
-                startX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
-                track.style.transition = 'none';
-            }
-            function dragMove(e) {
-                if (!isDragging) return;
-                e.preventDefault();
-                const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
-                const diff = currentX - startX;
-                const newTranslate = prevTranslate + diff;
-                track.style.transform = `translateX(${newTranslate}px)`;
-            }
-            function dragEnd() {
-                if (!isDragging) return;
-                isDragging = false;
-                track.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1)';
-                const movedBy = parseFloat(track.style.transform.replace('translateX(', '')) - prevTranslate;
-                const threshold = cardWidth * 0.3;
-                if (Math.abs(movedBy) > threshold) {
-                    if (movedBy < 0) slide('next');
-                    else slide('prev');
-                } else {
-                    updatePosition();
-                }
-                prevTranslate = -currentIndex * cardWidth;
-            }
-
-            track.addEventListener('mousedown', dragStart);
-            window.addEventListener('mousemove', dragMove);
-            window.addEventListener('mouseup', dragEnd);
-            track.addEventListener('touchstart', dragStart, { passive: false });
-            window.addEventListener('touchmove', dragMove, { passive: false });
-            window.addEventListener('touchend', dragEnd);
-
+            function dragStart(e) { isDragging = true; startX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX; track.style.transition = 'none'; }
+            function dragMove(e) { if (!isDragging) return; e.preventDefault(); const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX; track.style.transform = `translateX(${prevTranslate + (currentX - startX)}px)`; }
+            function dragEnd() { if (!isDragging) return; isDragging = false; track.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1)'; const moved = parseFloat(track.style.transform.replace('translateX(','')) - prevTranslate; if (Math.abs(moved) > cardWidth*0.3) moved < 0 ? slide('next') : slide('prev'); else updatePosition(); }
+            track.addEventListener('mousedown', dragStart); window.addEventListener('mousemove', dragMove); window.addEventListener('mouseup', dragEnd);
+            track.addEventListener('touchstart', dragStart, {passive: false}); window.addEventListener('touchmove', dragMove, {passive: false}); window.addEventListener('touchend', dragEnd);
             document.getElementById(prevId)?.addEventListener('click', () => slide('prev'));
             document.getElementById(nextId)?.addEventListener('click', () => slide('next'));
-            window.addEventListener('resize', () => updatePosition());
-
+            window.addEventListener('resize', updatePosition);
             render();
         }
 
-        // Helpers de visibilidade
-        function getVisibleFeatured() {
-            if (window.innerWidth < 640) return 2;
-            if (window.innerWidth < 1024) return 3;
-            return 5;
-        }
-        function getVisibleHome() {
-            return getVisibleFeatured(); // mesma lógica
-        }
-
-        // ---------- Ocultar seções se não houver produtos ----------
-        function toggleSectionVisibility(sectionSelector, products) {
-            const section = document.querySelector(sectionSelector);
-            if (section) {
-                section.style.display = products.length === 0 ? 'none' : '';
-            }
-        }
-
-        // ---------- Carregar categorias da API ----------
-        async function loadCategories() {
-            const grid = document.getElementById('categoryGrid');
-            if (!grid) return;
-
-            try {
-                const response = await fetch('/api/categories');
-                if (!response.ok) throw new Error('Erro ao buscar categorias');
-                const categories = await response.json();
-
-                grid.innerHTML = categories.map(cat => `
-                    <a href="/produtos?categoria=${cat.name.toLowerCase()}" class="group relative overflow-hidden rounded-2xl bg-light-gray p-8 flex flex-col items-center text-center transition-all duration-300 hover:bg-primary hover:shadow-2xl hover:-translate-y-2">
-                        <div class="w-16 h-16 rounded-full bg-white text-primary flex items-center justify-center text-3xl mb-4 shadow-sm group-hover:bg-accent group-hover:text-white transition-colors">
-                            <i class="ph ${cat.icon}"></i>
-                        </div>
-                        <h3 class="font-bold text-primary group-hover:text-white text-lg">${cat.name}</h3>
-                        <p class="text-gray-500 group-hover:text-white/70 text-[11px] uppercase tracking-widest mt-1">${cat.count}</p>
-                    </a>
-                `).join('');
-            } catch (error) {
-                console.error('Erro ao carregar categorias:', error);
-            }
-        }
-
-        // ---------- Fluxo principal: buscar produtos e inicializar vitrines ----------
-        (async function initializeStore() {
-            const allProducts = await fetchProductsFromAPI();
-
-            // Filtros
-            const featuredProducts = allProducts.filter(p => p.is_featured === true);
-            const homeProducts = allProducts.filter(p => p.category === 'Utensílios');
-
-            // Limitar quantidade para performance (opcional, mas recomendado)
-            const MAX_ITEMS = 30;
-            const featuredSlice = featuredProducts.slice(0, MAX_ITEMS);
-            const homeSlice = homeProducts.slice(0, MAX_ITEMS);
-
-            // Inicializa carrosséis
-            initCarousel('featuredTrack', 'featuredPrevBtn', 'featuredNextBtn', featuredSlice, getVisibleFeatured);
-            initCarousel('homeTrack', 'homePrevBtn', 'homeNextBtn', homeSlice, getVisibleHome);
-
-            // Oculta seções vazias
-            toggleSectionVisibility('section:has(#featuredTrack)', featuredSlice);
-            toggleSectionVisibility('section:has(#homeTrack)', homeSlice);
-            // Para maior precisão, podemos usar os seletores das seções pai:
-            const featuredSection = document.querySelector('section:has(#featuredTrack)');
-            if (featuredSection) featuredSection.style.display = featuredSlice.length ? '' : 'none';
-            const homeSection = document.querySelector('section:has(#homeTrack)');
-            if (homeSection) homeSection.style.display = homeSlice.length ? '' : 'none';
-
-            // Carrega categorias (já está sendo chamada abaixo, mas garantimos)
-            await loadCategories();
-        })();
-
-        // ---------- Hero slider ----------
-        const heroSlides = [
-            { title: "Assistência Técnica Autorizada", subtitle: "Eficiente, confiável e com garantia de serviço.", bg: "./banner-assistencia.png", cta: "Solicitar orçamento" },
-            { title: "Peças Originais para sua Geladeira", subtitle: "Mantenha seus alimentos frescos com o melhor desempenho.", bg: "https://images.unsplash.com/photo-1581791055773-5f8d8c3b64f3?auto=format&fit=crop&w=1600&q=80", cta: "Ver Peças →" },
-            { title: "Ofertas em Motores e Resistências", subtitle: "Até 20% off + frete grátis para toda linha.", bg: "https://images.unsplash.com/photo-1556911220-e150213ff7ad?auto=format&fit=crop&w=1600&q=80", cta: "Aproveitar →" }
-        ];
-        const heroTrack = document.getElementById('heroTrack');
-        const heroDots = document.getElementById('heroDots');
-        let heroIndex = 0, autoInterval;
-
-        function buildHero() {
-            if (!heroTrack) return;
-            heroTrack.innerHTML = heroSlides.map(slide => `
-                <div class="min-w-full h-full bg-cover bg-center flex items-center relative" style="background-image: linear-gradient(90deg, rgba(10,37,64,0.85) 0%, rgba(0,0,0,0.4) 100%), url('${slide.bg}')">
-                    <div class="container mx-auto px-6 md:px-12">
-                        <div class="max-w-xl text-white"><h1 class="text-4xl md:text-5xl font-bold mb-4">${slide.title}</h1><p class="text-base md:text-lg opacity-90 mb-6">${slide.subtitle}</p><a href="#" class="bg-accent hover:scale-105 transform transition-all text-white px-8 py-4 rounded-full font-bold inline-block shadow-lg">${slide.cta}</a></div>
-                    </div>
-                </div>
-            `).join('');
-            heroDots.innerHTML = heroSlides.map((_, i) => `<div class="hero-dot w-2 h-2 rounded-full bg-white/60 mx-1 transition-all ${i === heroIndex ? 'active bg-accent w-8' : 'w-2'}" data-index="${i}"></div>`);
-            document.querySelectorAll('.hero-dot').forEach(dot => dot.addEventListener('click', (e) => {
-                setHero(parseInt(e.currentTarget.dataset.index));
-                resetAuto();
-            }));
-        }
-        function setHero(idx) {
-            heroIndex = (idx + heroSlides.length) % heroSlides.length;
-            heroTrack.style.transform = `translateX(-${heroIndex * 100}%)`;
-            document.querySelectorAll('.hero-dot').forEach((d, i) => {
-                if (i === heroIndex) {
-                    d.classList.add('active', 'bg-accent', 'w-8');
-                    d.classList.remove('w-2');
-                } else {
-                    d.classList.remove('active', 'bg-accent', 'w-8');
-                    d.classList.add('w-2');
-                }
+        function attachAddToCartListeners() {
+            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                btn.removeEventListener('click', handleAddToCart);
+                btn.addEventListener('click', handleAddToCart);
             });
         }
-        function nextHero() { setHero(heroIndex + 1); resetAuto(); }
-        function prevHero() { setHero(heroIndex - 1); resetAuto(); }
-        function resetAuto() {
-            if (autoInterval) clearInterval(autoInterval);
-            autoInterval = setInterval(() => nextHero(), 6000);
+        function handleAddToCart(e) {
+            const btn = e.currentTarget;
+            const productData = JSON.parse(btn.dataset.product.replace(/&apos;/g, "'"));
+            showGlobalModal(`
+                <button onclick="closeGlobalModal()" class="absolute top-5 right-5 text-gray-400 hover:text-primary"><i class="ph ph-x text-2xl"></i></button>
+                <div class="text-center">
+                    <i class="ph ph-check-circle text-5xl text-green-500 mx-auto"></i>
+                    <h3 class="text-xl font-bold mt-3">Produto adicionado!</h3>
+                    <p class="text-gray-600">${productData.name}</p>
+                    <div class="flex gap-3 mt-6">
+                        <button onclick="closeGlobalModal()" class="flex-1 border py-3 rounded-xl">Continuar</button>
+                        <button class="flex-1 bg-primary text-white py-3 rounded-xl" onclick="closeGlobalModal(); openCartModal()">Ver carrinho</button>
+                    </div>
+                </div>
+            `);
+            // incrementa contador fake
+            const cartSpan = document.getElementById('cartCount');
+            cartSpan.textContent = (parseInt(cartSpan.textContent)||0) + 1;
         }
-        document.getElementById('heroPrevBtn')?.addEventListener('click', prevHero);
-        document.getElementById('heroNextBtn')?.addEventListener('click', nextHero);
-        buildHero();
-        setHero(0);
-        resetAuto();
 
-        // ---------- Modais ----------
-        window.closeModal = function(modalId) {
-            const m = document.getElementById(modalId);
-            if (m) {
-                m.classList.add('invisible', 'opacity-0');
-                const inner = m.querySelector('div:last-child');
-                if (inner) inner.classList.add('scale-95');
+        function getVisibleCount() { return window.innerWidth < 640 ? 2 : window.innerWidth < 1024 ? 3 : 5; }
+
+        // Inicialização principal
+        (async function init() {
+            await buildDynamicMenu();
+            await loadCategoryGrid();
+
+            const products = await fetchProducts();
+            
+            if (products && products.length > 0) {
+                // Embaralha para os carrosséis não ficarem idênticos
+                const shuffled = shuffleArray([...products]);
+                const featuredProds = shuffled.slice(0, 20);
+                const homeProds = shuffleArray([...products]).slice(0, 20); // outra cópia embaralhada
+                
+                initCarousel('featuredTrack', 'featuredPrevBtn', 'featuredNextBtn', featuredProds, getVisibleCount);
+                initCarousel('homeTrack', 'homePrevBtn', 'homeNextBtn', homeProds, getVisibleCount);
+            } else {
+                // Se não houver produtos, exibe mensagem nos tracks (opcional)
+                document.getElementById('featuredTrack').innerHTML = '<div class="p-8 text-center w-full">Nenhum produto em destaque no momento.</div>';
+                document.getElementById('homeTrack').innerHTML = '<div class="p-8 text-center w-full">Nenhum produto disponível.</div>';
             }
-        };
-        function openModal(modal) {
-            if (modal) {
-                modal.classList.remove('invisible', 'opacity-0');
-                modal.classList.add('opacity-100');
-                setTimeout(() => {
-                    const inner = modal.querySelector('div:last-child');
-                    if (inner) inner.classList.remove('scale-95');
-                }, 10);
-            }
+            
+            // Hero slider
+            initHero();
+        })();
+
+        // Hero
+        function initHero() {
+            const slides = [
+                { title: "Assistência Técnica Autorizada", subtitle: "Eficiente, confiável e com garantia.", bg: "./banner-assistencia.png", cta: "Solicitar orçamento" },
+                { title: "Peças Originais", subtitle: "Mantenha seus eletros com desempenho máximo.", bg: "https://images.unsplash.com/photo-1581791055773-5f8d8c3b64f3?auto=format&fit=crop&w=1600&q=80", cta: "Ver Peças →" },
+                { title: "Ofertas em Motores", subtitle: "Até 20% off + frete grátis.", bg: "https://images.unsplash.com/photo-1556911220-e150213ff7ad?auto=format&fit=crop&w=1600&q=80", cta: "Aproveitar →" }
+            ];
+            const track = document.getElementById('heroTrack');
+            const dots = document.getElementById('heroDots');
+            let index = 0, interval;
+            track.innerHTML = slides.map(s => `<div class="min-w-full h-full bg-cover bg-center flex items-center relative" style="background-image: linear-gradient(90deg, rgba(10,37,64,0.85) 0%, rgba(0,0,0,0.4) 100%), url('${s.bg}')"><div class="container mx-auto px-6 md:px-12"><div class="max-w-xl text-white"><h1 class="text-4xl md:text-5xl font-bold mb-4">${s.title}</h1><p class="text-base md:text-lg opacity-90 mb-6">${s.subtitle}</p><a href="#" class="bg-accent hover:scale-105 transform transition-all text-white px-8 py-4 rounded-full font-bold inline-block shadow-lg">${s.cta}</a></div></div></div>`).join('');
+            dots.innerHTML = slides.map((_,i)=>`<div class="hero-dot w-2 h-2 rounded-full bg-white/60 mx-1 transition-all ${i===0?'active bg-accent w-8':'w-2'}" data-index="${i}"></div>`);
+            const setHero = (idx) => { index = (idx+slides.length)%slides.length; track.style.transform = `translateX(-${index*100}%)`; document.querySelectorAll('.hero-dot').forEach((d,i)=>{ if(i===index){ d.classList.add('active','bg-accent','w-8'); d.classList.remove('w-2'); } else { d.classList.remove('active','bg-accent','w-8'); d.classList.add('w-2'); } }); };
+            document.querySelectorAll('.hero-dot').forEach(d=>d.addEventListener('click',e=>{ setHero(parseInt(e.currentTarget.dataset.index)); resetInterval(); }));
+            document.getElementById('heroPrevBtn').addEventListener('click', ()=> { setHero(index-1); resetInterval(); });
+            document.getElementById('heroNextBtn').addEventListener('click', ()=> { setHero(index+1); resetInterval(); });
+            function resetInterval() { clearInterval(interval); interval = setInterval(()=>setHero(index+1), 6000); }
+            resetInterval();
         }
-        document.getElementById('openChatModalBtn')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            openModal(document.getElementById('chatModal'));
-        });
-        document.getElementById('openCallModalBtn')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            openModal(document.getElementById('callModal'));
-        });
     })();
-    
 </script>
 </body>
 </html>

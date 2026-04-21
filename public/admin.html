@@ -20,6 +20,7 @@
         }
     </script>
     <style>
+        /* Estilos base mantidos, com adição de animações para toast e modal */
         .switch {
             position: relative;
             display: inline-block;
@@ -93,9 +94,192 @@
         .photo-preview-item { position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
         .photo-preview-item img { width: 100%; height: 100%; object-fit: cover; }
         .photo-preview-item button { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.5); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+        /* Animações para toast e modal */
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .toast-enter {
+            animation: slideIn 0.3s ease forwards;
+        }
+        .toast-exit {
+            animation: fadeOut 0.2s ease forwards;
+        }
+        .modal-backdrop {
+            background-color: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+        }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 antialiased">
+
+<!-- Container para Toasts -->
+<div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 w-72 md:w-96"></div>
+
+<!-- Modal de confirmação genérico -->
+<div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop transition-all">
+    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6 transform transition-all">
+        <h3 id="confirmModalTitle" class="text-lg font-bold text-slate-800 mb-2">Confirmar ação</h3>
+        <p id="confirmModalMessage" class="text-slate-600 mb-6">Tem certeza?</p>
+        <div class="flex justify-end gap-3">
+            <button id="confirmModalCancel" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition font-medium">Cancelar</button>
+            <button id="confirmModalConfirm" class="px-4 py-2 bg-accent text-white rounded-xl hover:bg-red-700 transition font-medium shadow-sm">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para adicionar/editar subcategoria -->
+<div id="subcategoryModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop transition-all">
+    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
+        <h3 class="text-xl font-bold text-primary mb-4 flex items-center gap-2">
+            <i class="ph ph-tag text-accent"></i> Nova Subcategoria
+        </h3>
+        <form id="subcategoryForm">
+            <input type="hidden" id="subcategoryCategoryId" name="categoryId">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Nome da subcategoria</label>
+                <input type="text" id="subcategoryName" name="name" required placeholder="Ex: Lâmpadas LED" 
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none">
+            </div>
+            <div class="flex justify-end gap-3">
+                <button type="button" id="closeSubcategoryModalBtn" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition font-medium">Cancelar</button>
+                <button type="submit" class="px-5 py-2 bg-primary text-white rounded-xl hover:bg-slate-800 transition font-medium shadow-sm flex items-center gap-2">
+                    <i class="ph ph-check"></i> Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para adicionar categoria -->
+<div id="categoryModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop transition-all">
+    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
+        <h3 class="text-xl font-bold text-primary mb-4 flex items-center gap-2">
+            <i class="ph ph-folder-plus text-accent"></i> Nova Categoria
+        </h3>
+        <form id="categoryModalForm" enctype="multipart/form-data">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Nome da categoria</label>
+                <input type="text" id="newCategoryNameModal" name="name" required placeholder="Ex: Iluminação" 
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none">
+            </div>
+            <div class="mb-5">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Foto da categoria <span class="text-slate-400 font-normal">(opcional)</span></label>
+                <input type="file" name="photo" id="categoryPhotoInput" accept="image/*"
+                       class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-slate-800 file:cursor-pointer cursor-pointer border border-slate-200 rounded-xl p-1">
+                <div id="categoryPhotoPreview" class="mt-2 hidden">
+                    <img id="categoryPhotoPreviewImg" src="" alt="Preview" class="w-full h-32 object-cover rounded-xl border border-slate-200">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button type="button" id="closeCategoryModalBtn" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition font-medium">Cancelar</button>
+                <button type="submit" class="px-5 py-2 bg-primary text-white rounded-xl hover:bg-slate-800 transition font-medium shadow-sm flex items-center gap-2">
+                    <i class="ph ph-check"></i> Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para EDITAR categoria -->
+<div id="editCategoryModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop transition-all">
+    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
+        <h3 class="text-xl font-bold text-primary mb-4 flex items-center gap-2">
+            <i class="ph ph-pencil-simple text-accent"></i> Editar Categoria
+        </h3>
+        <form id="editCategoryForm" enctype="multipart/form-data">
+            <input type="hidden" id="editCategoryId">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Nome da categoria</label>
+                <input type="text" id="editCategoryName" name="name" required placeholder="Ex: Iluminação"
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none">
+            </div>
+            <div class="mb-5">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Foto da categoria <span class="text-slate-400 font-normal">(opcional)</span></label>
+                <div id="editCategoryCurrentPhoto" class="mb-2 hidden">
+                    <p class="text-xs text-slate-500 mb-1">Foto atual:</p>
+                    <img id="editCategoryCurrentImg" src="" alt="Foto atual" class="w-full h-28 object-cover rounded-xl border border-slate-200">
+                </div>
+                <input type="file" name="photo" id="editCategoryPhotoInput" accept="image/*"
+                       class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-slate-800 file:cursor-pointer cursor-pointer border border-slate-200 rounded-xl p-1">
+                <div id="editCategoryPhotoPreview" class="mt-2 hidden">
+                    <p class="text-xs text-slate-500 mb-1">Nova foto:</p>
+                    <img id="editCategoryPhotoPreviewImg" src="" alt="Preview" class="w-full h-28 object-cover rounded-xl border border-slate-200">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button type="button" id="closeEditCategoryModalBtn" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition font-medium">Cancelar</button>
+                <button type="submit" class="px-5 py-2 bg-primary text-white rounded-xl hover:bg-slate-800 transition font-medium shadow-sm flex items-center gap-2">
+                    <i class="ph ph-check"></i> Salvar Alterações
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL DE EDIÇÃO DE PRODUTO -->
+<div id="editProductModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop overflow-y-auto py-8">
+    <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-4 my-auto">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-primary flex items-center gap-2">
+                    <i class="ph ph-pencil-simple text-accent"></i> Editar Produto
+                </h3>
+                <button id="closeEditModalBtn" class="text-slate-400 hover:text-slate-600">
+                    <i class="ph ph-x text-2xl"></i>
+                </button>
+            </div>
+            <form id="editProductForm" enctype="multipart/form-data">
+                <input type="hidden" id="editProductId" name="id">
+                <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                    <input type="text" id="editProductName" name="name" placeholder="Nome do produto *" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none text-sm">
+                    <textarea id="editProductDescription" name="description" placeholder="Descrição curta..." rows="2" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none text-sm"></textarea>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="editProductBrand" name="brand" placeholder="Marca *" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none text-sm">
+                        <input type="text" id="editProductModel" name="model" placeholder="Modelo *" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none text-sm">
+                    </div>
+                    <select id="editProductVoltage" name="voltage" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none text-sm bg-white">
+                        <option value="">Selecione a voltagem *</option>
+                        <option value="110v">110v</option>
+                        <option value="220v">220v</option>
+                        <option value="Bivolt">Bivolt</option>
+                    </select>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="number" step="0.01" id="editProductPrice" name="price" placeholder="Preço (R$)*" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none text-sm">
+                        <input type="number" id="editProductStock" name="stock" placeholder="Estoque *" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none text-sm">
+                    </div>
+                    <select id="editProductCategory" name="categoryId" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none text-sm bg-white">
+                        <option value="">Selecione a categoria *</option>
+                    </select>
+                    <select id="editProductSubcategory" name="subCategoryId" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none text-sm bg-white">
+                        <option value="">Selecione a subcategoria *</option>
+                    </select>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Fotos do produto (1 a 4)</label>
+                        <input type="file" name="photos" id="editProductPhotos" accept="image/*" multiple class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-slate-800 file:cursor-pointer cursor-pointer border border-slate-200 rounded-xl p-1">
+                        <div id="editPhotoPreviewContainer" class="photo-preview"></div>
+                        <p class="text-xs text-slate-500 mt-1">Deixe vazio para manter as fotos atuais.</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="editProductOnSale" name="on_sale" class="w-4 h-4 text-accent"> <span class="text-sm">🔥 Em Oferta</span></label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="editProductFeatured" name="is_featured" class="w-4 h-4 text-accent"> <span class="text-sm">⭐ Em Destaque</span></label>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-200">
+                    <button type="button" id="cancelEditModalBtn" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition font-medium">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-primary text-white rounded-xl hover:bg-slate-800 transition font-medium shadow-sm flex items-center gap-2">
+                        <i class="ph ph-check"></i> Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <div class="min-h-screen flex flex-col">
     <header class="bg-primary text-white py-4 shadow-md sticky top-0 z-20">
@@ -128,6 +312,7 @@
 
         <!-- DASHBOARD -->
         <div id="dashboardPanel" class="tab-pane">
+            <!-- ... conteúdo do dashboard mantido ... -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5 mb-6">
                 <div class="dashboard-card flex items-center gap-3">
                     <div class="w-9 h-9 md:w-12 md:h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center"><i class="ph ph-money text-xl md:text-2xl"></i></div>
@@ -220,9 +405,10 @@
                             <option value="">Selecione a subcategoria *</option>
                         </select>
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Fotos do produto (1 a 4)</label>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Fotos do produto (1 a 5)</label>
                             <input type="file" name="photos" id="productPhotos" accept="image/*" multiple class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-slate-800 file:cursor-pointer cursor-pointer border border-slate-200 rounded-xl p-1">
                             <div id="photoPreviewContainer" class="photo-preview"></div>
+                            <p class="text-xs text-slate-500 mt-1">Selecione até 5 fotos (clique para adicionar mais)</p>
                         </div>
                         <div class="flex gap-4">
                             <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="on_sale" class="w-4 h-4 text-accent"> <span class="text-sm">🔥 Em Oferta</span></label>
@@ -257,16 +443,16 @@
 
         <!-- CATEGORIAS -->
         <div id="categoriesPanel" class="tab-pane hidden">
-            <div class="max-w-4xl mx-auto">
+            <div class="max-w-5xl mx-auto">
                 <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6">
-                    <h2 class="text-xl font-bold text-primary mb-6 flex items-center gap-2"><i class="ph ph-tag"></i> Gerenciar Categorias</h2>
-                    <form id="categoryForm" class="flex gap-3 mb-8 items-end">
-                        <div class="flex-1 min-w-[200px]">
-                            <label class="block text-xs text-slate-500 mb-1">Nome da categoria</label>
-                            <input type="text" id="newCategoryName" placeholder="Ex: Iluminação" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none">
-                        </div>
-                        <button type="submit" class="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-slate-800 transition"><i class="ph ph-plus"></i> Adicionar</button>
-                    </form>
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold text-primary flex items-center gap-2">
+                            <i class="ph ph-tag text-accent"></i> Gerenciar Categorias
+                        </h2>
+                        <button id="openAddCategoryModalBtn" class="bg-primary text-white px-5 py-2.5 rounded-xl font-medium hover:bg-slate-800 transition flex items-center gap-2 shadow-sm">
+                            <i class="ph ph-plus"></i> Nova Categoria
+                        </button>
+                    </div>
                     <div id="categoriesListContainer" class="space-y-4"></div>
                 </div>
             </div>
@@ -305,9 +491,349 @@
         let allSubcategories = [];
         let ordersData = [];
         let currentSearchTerm = '';
-        let myChartInstance = null;  // <-- Instância global do gráfico
+        let myChartInstance = null;
 
-        // Helper fetch com fallback para array vazio
+        // ---------- TOAST SYSTEM ----------
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 
+                           type === 'error' ? 'bg-rose-50 border-rose-200 text-rose-800' : 
+                           'bg-blue-50 border-blue-200 text-blue-800';
+            const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'warning-circle' : 'info';
+            toast.className = `flex items-center gap-3 p-4 rounded-xl shadow-lg border ${bgColor} toast-enter`;
+            toast.innerHTML = `
+                <i class="ph ph-${icon} text-xl"></i>
+                <span class="text-sm font-medium flex-1">${escapeHtml(message)}</span>
+                <button class="text-slate-400 hover:text-slate-600" onclick="this.parentElement.remove()">
+                    <i class="ph ph-x"></i>
+                </button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('toast-exit');
+                setTimeout(() => toast.remove(), 200);
+            }, 4000);
+        }
+
+        // ---------- MODAL SYSTEM (genérico para confirmação) ----------
+        let confirmModalCallback = null;
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmTitle = document.getElementById('confirmModalTitle');
+        const confirmMessage = document.getElementById('confirmModalMessage');
+        const confirmBtn = document.getElementById('confirmModalConfirm');
+        const cancelBtn = document.getElementById('confirmModalCancel');
+
+        function showConfirmModal(title, message, onConfirm) {
+            confirmTitle.textContent = title;
+            confirmMessage.textContent = message;
+            confirmModalCallback = onConfirm;
+            confirmModal.classList.remove('hidden');
+            confirmModal.classList.add('flex');
+        }
+
+        function hideConfirmModal() {
+            confirmModal.classList.add('hidden');
+            confirmModal.classList.remove('flex');
+            confirmModalCallback = null;
+        }
+
+        confirmBtn.addEventListener('click', () => {
+            if (confirmModalCallback) confirmModalCallback();
+            hideConfirmModal();
+        });
+        cancelBtn.addEventListener('click', hideConfirmModal);
+        confirmModal.addEventListener('click', (e) => { if (e.target === confirmModal) hideConfirmModal(); });
+
+        // ---------- MODAL PARA SUBCATEGORIA ----------
+        const subcategoryModal = document.getElementById('subcategoryModal');
+        const subcategoryForm = document.getElementById('subcategoryForm');
+        const subcategoryCategoryId = document.getElementById('subcategoryCategoryId');
+        const subcategoryNameInput = document.getElementById('subcategoryName');
+        const closeSubModalBtn = document.getElementById('closeSubcategoryModalBtn');
+
+        function openSubcategoryModal(categoryId) {
+            subcategoryCategoryId.value = categoryId;
+            subcategoryNameInput.value = '';
+            subcategoryModal.classList.remove('hidden');
+            subcategoryModal.classList.add('flex');
+        }
+
+        function closeSubcategoryModal() {
+            subcategoryModal.classList.add('hidden');
+            subcategoryModal.classList.remove('flex');
+        }
+
+        subcategoryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const categoryId = subcategoryCategoryId.value;
+            const name = subcategoryNameInput.value.trim();
+            if (!name) return;
+            const submitBtn = subcategoryForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Salvando...';
+            try {
+                await fetchJSON(SUBCATEGORIES_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ categoryId, name })
+                });
+                closeSubcategoryModal();
+                showToast('Subcategoria criada com sucesso!', 'success');
+                await loadSubcategories();
+                renderCategoriesList();
+                const catSelect = document.getElementById('productCategorySelect');
+                if (catSelect.value === categoryId) {
+                    const subs = await fetchJSON(`${API_BASE}/categories/${categoryId}/subcategories`);
+                    const subSelect = document.getElementById('productSubcategorySelect');
+                    subSelect.innerHTML = '<option value="">Selecione a subcategoria *</option>';
+                    subs.forEach(sub => { 
+                        let opt = document.createElement('option'); 
+                        opt.value = sub.id; 
+                        opt.textContent = sub.name; 
+                        subSelect.appendChild(opt); 
+                    });
+                    subSelect.disabled = subs.length === 0;
+                }
+            } catch (error) {
+                showToast('Erro ao criar subcategoria: ' + error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+
+        closeSubModalBtn.addEventListener('click', closeSubcategoryModal);
+        subcategoryModal.addEventListener('click', (e) => { if (e.target === subcategoryModal) closeSubcategoryModal(); });
+
+        // ---------- MODAL PARA CATEGORIA ----------
+        const categoryModal = document.getElementById('categoryModal');
+        const categoryForm = document.getElementById('categoryModalForm');
+        const categoryNameInput = document.getElementById('newCategoryNameModal');
+        const closeCategoryModalBtn = document.getElementById('closeCategoryModalBtn');
+        const openAddCategoryBtn = document.getElementById('openAddCategoryModalBtn');
+
+        function openCategoryModal() {
+            categoryNameInput.value = '';
+            document.getElementById('categoryPhotoInput').value = '';
+            document.getElementById('categoryPhotoPreview').classList.add('hidden');
+            categoryModal.classList.remove('hidden');
+            categoryModal.classList.add('flex');
+        }
+        function closeCategoryModal() {
+            categoryModal.classList.add('hidden');
+            categoryModal.classList.remove('flex');
+        }
+
+        document.getElementById('categoryPhotoInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const preview = document.getElementById('categoryPhotoPreview');
+                document.getElementById('categoryPhotoPreviewImg').src = ev.target.result;
+                preview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        openAddCategoryBtn.addEventListener('click', openCategoryModal);
+        closeCategoryModalBtn.addEventListener('click', closeCategoryModal);
+        categoryModal.addEventListener('click', (e) => { if (e.target === categoryModal) closeCategoryModal(); });
+
+        categoryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = categoryNameInput.value.trim();
+            if (!name) return;
+            const submitBtn = categoryForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Salvando...';
+            try {
+                const formData = new FormData();
+                formData.append('name', name);
+                const photoFile = document.getElementById('categoryPhotoInput').files[0];
+                if (photoFile) formData.append('photo', photoFile);
+                const res = await fetch(CATEGORIES_URL, { method: 'POST', body: formData });
+                if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || `Erro ${res.status}`); }
+                closeCategoryModal();
+                showToast('Categoria criada com sucesso!', 'success');
+                await loadCategories();
+            } catch (error) {
+                showToast('Erro ao criar categoria: ' + error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+
+        // ---------- MODAL DE EDIÇÃO DE PRODUTO ----------
+        const editModal = document.getElementById('editProductModal');
+        const editForm = document.getElementById('editProductForm');
+        const editProductId = document.getElementById('editProductId');
+        const editProductName = document.getElementById('editProductName');
+        const editProductDescription = document.getElementById('editProductDescription');
+        const editProductBrand = document.getElementById('editProductBrand');
+        const editProductModel = document.getElementById('editProductModel');
+        const editProductVoltage = document.getElementById('editProductVoltage');
+        const editProductPrice = document.getElementById('editProductPrice');
+        const editProductStock = document.getElementById('editProductStock');
+        const editProductCategory = document.getElementById('editProductCategory');
+        const editProductSubcategory = document.getElementById('editProductSubcategory');
+        const editProductOnSale = document.getElementById('editProductOnSale');
+        const editProductFeatured = document.getElementById('editProductFeatured');
+        const editPhotosInput = document.getElementById('editProductPhotos');
+        const editPreviewContainer = document.getElementById('editPhotoPreviewContainer');
+        const closeEditModalBtn = document.getElementById('closeEditModalBtn');
+        const cancelEditModalBtn = document.getElementById('cancelEditModalBtn');
+
+        let editSelectedFiles = [];
+        let currentEditingProduct = null;
+
+        function openEditModal(product) {
+            currentEditingProduct = product;
+            editProductId.value = product.id;
+            editProductName.value = product.name || '';
+            editProductDescription.value = product.description || '';
+            editProductBrand.value = product.brand || '';
+            editProductModel.value = product.model || '';
+            editProductVoltage.value = product.voltage || '';
+            editProductPrice.value = product.price || '';
+            editProductStock.value = product.stock || '';
+            editProductOnSale.checked = product.on_sale || false;
+            editProductFeatured.checked = product.is_featured || false;
+
+            // Popular categorias
+            editProductCategory.innerHTML = '<option value="">Selecione a categoria *</option>';
+            allCategories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.id;
+                opt.textContent = cat.name;
+                if (cat.id === product.categoryId) opt.selected = true;
+                editProductCategory.appendChild(opt);
+            });
+
+            // Carregar subcategorias da categoria atual
+            loadSubcategoriesForEdit(product.categoryId, product.subCategoryId);
+
+            // Limpar preview de fotos
+            editSelectedFiles = [];
+            editPreviewContainer.innerHTML = '';
+            editPhotosInput.value = '';
+
+            // Exibir fotos atuais (se existirem) como preview estático
+            if (product.images && product.images.length) {
+                product.images.forEach((imgUrl, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'photo-preview-item';
+                    div.innerHTML = `<img src="${escapeHtml(imgUrl)}" alt="Foto ${idx+1}">`;
+                    editPreviewContainer.appendChild(div);
+                });
+            }
+
+            editModal.classList.remove('hidden');
+            editModal.classList.add('flex');
+        }
+
+        async function loadSubcategoriesForEdit(categoryId, selectedSubId = null) {
+            editProductSubcategory.innerHTML = '<option value="">Carregando...</option>';
+            editProductSubcategory.disabled = true;
+            if (!categoryId) {
+                editProductSubcategory.innerHTML = '<option value="">Selecione uma categoria primeiro</option>';
+                return;
+            }
+            try {
+                const subs = await fetchJSON(`${API_BASE}/categories/${categoryId}/subcategories`);
+                editProductSubcategory.innerHTML = '<option value="">Selecione a subcategoria *</option>';
+                subs.forEach(sub => {
+                    const opt = document.createElement('option');
+                    opt.value = sub.id;
+                    opt.textContent = sub.name;
+                    if (sub.id === selectedSubId) opt.selected = true;
+                    editProductSubcategory.appendChild(opt);
+                });
+                editProductSubcategory.disabled = subs.length === 0;
+            } catch (e) {
+                editProductSubcategory.innerHTML = '<option value="">Erro ao carregar</option>';
+            }
+        }
+
+        editProductCategory.addEventListener('change', () => {
+            loadSubcategoriesForEdit(editProductCategory.value);
+        });
+
+        editPhotosInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length > 4) {
+                showToast('Máximo de 4 fotos', 'error');
+                editPhotosInput.value = '';
+                return;
+            }
+            editSelectedFiles = files;
+            // Limpar preview anterior (exceto as imagens estáticas, vamos limpar tudo e mostrar novas)
+            editPreviewContainer.innerHTML = '';
+            editSelectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const div = document.createElement('div');
+                    div.className = 'photo-preview-item';
+                    div.innerHTML = `<img src="${e.target.result}" alt="Preview"><button type="button" data-index="${index}"><i class="ph ph-x"></i></button>`;
+                    div.querySelector('button').addEventListener('click', () => {
+                        editSelectedFiles.splice(index, 1);
+                        const dt = new DataTransfer();
+                        editSelectedFiles.forEach(f => dt.items.add(f));
+                        editPhotosInput.files = dt.files;
+                        // Re-renderizar preview
+                        editPhotosInput.dispatchEvent(new Event('change'));
+                    });
+                    editPreviewContainer.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function closeEditModal() {
+            editModal.classList.add('hidden');
+            editModal.classList.remove('flex');
+            currentEditingProduct = null;
+        }
+
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const productId = editProductId.value;
+            const formData = new FormData(editForm);
+            // Se nenhuma foto nova foi selecionada, remova o campo 'photos' para não enviar vazio e sobrescrever
+            if (editSelectedFiles.length === 0) {
+                formData.delete('photos');
+            }
+            const submitBtn = editForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Salvando...';
+            try {
+                const res = await fetch(`${PRODUCTS_URL}/${productId}`, {
+                    method: 'PUT',
+                    body: formData
+                });
+                if (!res.ok) throw new Error(await res.text() || 'Erro ao atualizar');
+                await res.json();
+                closeEditModal();
+                showToast('Produto atualizado com sucesso!', 'success');
+                await fetchProducts();
+            } catch (err) {
+                showToast('Erro: ' + err.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+
+        closeEditModalBtn.addEventListener('click', closeEditModal);
+        cancelEditModalBtn.addEventListener('click', closeEditModal);
+        editModal.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
+
+        // Helper fetch com fallback
         async function fetchJSON(url, options = {}) {
             try {
                 const res = await fetch(url, options);
@@ -319,10 +845,11 @@
                     } catch (e) {}
                     throw new Error(errorMsg);
                 }
-                return await res.json();
+                const text = await res.text();
+                return text ? JSON.parse(text) : {};
             } catch (err) {
                 console.warn(`Falha ao buscar ${url}:`, err.message);
-                return []; // Retorna array vazio em caso de erro
+                throw err;
             }
         }
 
@@ -330,7 +857,7 @@
         async function loadCategories() {
             const container = document.getElementById('categoriesListContainer');
             if (!container) return;
-            container.innerHTML = '<p class="text-slate-400 text-center py-4">Carregando categorias...</p>';
+            container.innerHTML = '<p class="text-slate-400 text-center py-8">Carregando categorias...</p>';
             try {
                 allCategories = await fetchJSON(CATEGORIES_URL);
                 await loadSubcategories();
@@ -338,7 +865,8 @@
                 renderCategoriesList();
             } catch(err) {
                 console.error(err);
-                container.innerHTML = '<p class="text-slate-400 text-center py-4">Erro ao carregar categorias.</p>';
+                container.innerHTML = '<p class="text-slate-400 text-center py-8">Erro ao carregar categorias.</p>';
+                showToast('Erro ao carregar categorias', 'error');
             }
         }
 
@@ -390,243 +918,183 @@
         function renderCategoriesList() {
             const container = document.getElementById('categoriesListContainer');
             if(!container) return;
-            container.innerHTML = ''; // Limpa antes de renderizar
             
             if(!allCategories.length) {
-                container.innerHTML = '<p class="text-slate-400 text-center py-4">Nenhuma categoria cadastrada.</p>';
+                container.innerHTML = '<p class="text-slate-400 text-center py-8">Nenhuma categoria cadastrada.</p>';
                 return;
             }
 
             container.innerHTML = allCategories.map(cat => {
                 const subs = allSubcategories.filter(s => s.categoryId === cat.id);
                 return `
-                <div class="border border-slate-200 rounded-xl p-4 bg-white shadow-sm">
-                    <div class="flex items-center justify-between">
-                        <span class="font-semibold text-primary text-lg">${escapeHtml(cat.name)}</span>
+                <div class="border border-slate-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all overflow-hidden">
+                    <div class="flex items-center justify-between p-5 bg-gradient-to-r from-slate-50 to-white">
+                        <div class="flex items-center gap-3">
+                            ${cat.imageUrl 
+                                ? `<img src="${escapeHtml(cat.imageUrl)}" alt="${escapeHtml(cat.name)}" class="w-10 h-10 rounded-lg object-cover border border-slate-200 shadow-sm">`
+                                : `<div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center"><i class="ph ph-folder-open text-xl"></i></div>`
+                            }
+                            <span class="font-bold text-primary text-lg">${escapeHtml(cat.name)}</span>
+                            <span class="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded-full">${subs.length} subcategorias</span>
+                        </div>
                         <div class="flex gap-2">
-                            <button onclick="addSubcategoryPrompt('${cat.id}')" class="text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-full flex items-center gap-1 transition">
+                            <button onclick="openSubcategoryModal('${cat.id}')" class="text-xs bg-white border border-slate-200 hover:bg-slate-100 px-3 py-1.5 rounded-xl flex items-center gap-1 transition shadow-sm">
                                 <i class="ph ph-plus text-sm"></i> Subcategoria
                             </button>
-                            <button onclick="deleteCategory('${cat.id}')" class="text-slate-400 hover:text-accent transition p-1" title="Excluir categoria">
+                            <button onclick="editCategoryHandler('${cat.id}')" class="text-slate-400 hover:text-primary transition p-2 rounded-full hover:bg-slate-100" title="Editar categoria">
+                                <i class="ph ph-pencil-simple text-xl"></i>
+                            </button>
+                            <button onclick="deleteCategoryHandler('${cat.id}')" class="text-slate-400 hover:text-accent transition p-2 rounded-full hover:bg-slate-100" title="Excluir categoria">
                                 <i class="ph ph-trash-simple text-xl"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="mt-3 space-y-2">
-                        ${subs.length ? subs.map(sub => `
-                            <div class="flex items-center justify-between text-sm bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                                <span>${escapeHtml(sub.name)}</span>
-                                <button onclick="deleteSubcategory('${sub.id}')" class="text-slate-400 hover:text-accent transition" title="Excluir subcategoria">
-                                    <i class="ph ph-trash-simple text-lg"></i>
-                                </button>
+                    <div class="px-5 pb-5 pt-2">
+                        ${subs.length ? `
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                ${subs.map(sub => `
+                                    <div class="flex items-center justify-between text-sm bg-slate-50/80 p-3 rounded-xl border border-slate-100 hover:border-slate-200 transition">
+                                        <div class="flex items-center gap-2">
+                                            <i class="ph ph-tag text-slate-400"></i>
+                                            <span class="font-medium">${escapeHtml(sub.name)}</span>
+                                        </div>
+                                        <button onclick="deleteSubcategoryHandler('${sub.id}')" class="text-slate-400 hover:text-accent transition p-1 rounded-full" title="Excluir subcategoria">
+                                            <i class="ph ph-trash-simple text-lg"></i>
+                                        </button>
+                                    </div>
+                                `).join('')}
                             </div>
-                        `).join('') : '<p class="text-slate-400 text-xs py-1 italic">Nenhuma subcategoria</p>'}
+                        ` : '<p class="text-slate-400 text-sm py-3 italic flex items-center gap-2"><i class="ph ph-info"></i> Nenhuma subcategoria</p>'}
                     </div>
                 </div>`;
             }).join('');
         }
 
-        window.addSubcategoryPrompt = (categoryId) => {
-            const name = prompt('Nome da nova subcategoria:');
-            if(!name || !name.trim()) return;
-            addSubcategory(categoryId, name.trim());
+        window.deleteCategoryHandler = (id) => {
+            showConfirmModal('Excluir categoria', 'Tem certeza que deseja excluir esta categoria e todas as suas subcategorias?', async () => {
+                try {
+                    await fetch(`${CATEGORIES_URL}/${id}`, { method: 'DELETE' });
+                    showToast('Categoria excluída com sucesso', 'success');
+                    await loadCategories();
+                } catch(e) {
+                    showToast('Erro ao excluir categoria: ' + e.message, 'error');
+                }
+            });
         };
 
-        async function addSubcategory(categoryId, name) {
-            try {
-                await fetchJSON(SUBCATEGORIES_URL, { 
-                    method: 'POST', 
-                    headers: {'Content-Type':'application/json'}, 
-                    body: JSON.stringify({ categoryId, name }) 
-                });
-                await loadSubcategories();
-                renderCategoriesList();
-                const catSelect = document.getElementById('productCategorySelect');
-                if(catSelect.value === categoryId) {
-                    const subs = await fetchJSON(`${API_BASE}/categories/${categoryId}/subcategories`);
-                    const subSelect = document.getElementById('productSubcategorySelect');
-                    subSelect.innerHTML = '<option value="">Selecione a subcategoria *</option>';
-                    subs.forEach(sub => { 
-                        let opt = document.createElement('option'); 
-                        opt.value = sub.id; 
-                        opt.textContent = sub.name; 
-                        subSelect.appendChild(opt); 
-                    });
-                    subSelect.disabled = subs.length === 0;
-                }
-            } catch(e) { 
-                alert('Erro ao adicionar subcategoria: ' + e.message); 
+        // ---------- EDITAR CATEGORIA ----------
+        const editCategoryModal = document.getElementById('editCategoryModal');
+        const editCategoryForm = document.getElementById('editCategoryForm');
+
+        function openEditCategoryModal(cat) {
+            document.getElementById('editCategoryId').value = cat.id;
+            document.getElementById('editCategoryName').value = cat.name;
+            document.getElementById('editCategoryPhotoInput').value = '';
+            document.getElementById('editCategoryPhotoPreview').classList.add('hidden');
+
+            const currentPhotoBlock = document.getElementById('editCategoryCurrentPhoto');
+            const currentImg = document.getElementById('editCategoryCurrentImg');
+            if (cat.imageUrl) {
+                currentImg.src = cat.imageUrl;
+                currentPhotoBlock.classList.remove('hidden');
+            } else {
+                currentPhotoBlock.classList.add('hidden');
             }
+
+            editCategoryModal.classList.remove('hidden');
+            editCategoryModal.classList.add('flex');
         }
 
-        window.deleteSubcategory = async (id) => {
-            if(!confirm('Excluir subcategoria? Essa ação não pode ser desfeita.')) return;
-            try {
-                await fetch(`${SUBCATEGORIES_URL}/${id}`, { method: 'DELETE' });
-                await loadSubcategories();
-                renderCategoriesList();
-                const catSelect = document.getElementById('productCategorySelect');
-                if(catSelect.value) {
-                    const subs = await fetchJSON(`${API_BASE}/categories/${catSelect.value}/subcategories`);
-                    const subSelect = document.getElementById('productSubcategorySelect');
-                    subSelect.innerHTML = '<option value="">Selecione a subcategoria *</option>';
-                    subs.forEach(sub => { 
-                        let opt = document.createElement('option'); 
-                        opt.value = sub.id; 
-                        opt.textContent = sub.name; 
-                        subSelect.appendChild(opt); 
-                    });
-                    subSelect.disabled = subs.length === 0;
-                }
-            } catch(e) {
-                alert('Erro ao excluir subcategoria: ' + e.message);
-            }
-        };
+        function closeEditCategoryModal() {
+            editCategoryModal.classList.add('hidden');
+            editCategoryModal.classList.remove('flex');
+        }
 
-        window.deleteCategory = async (id) => {
-            if(!confirm('Excluir categoria e todas as suas subcategorias? Essa ação é irreversível.')) return;
-            try {
-                await fetch(`${CATEGORIES_URL}/${id}`, { method: 'DELETE' });
-                await loadCategories();
-            } catch(e) {
-                alert('Erro ao excluir categoria: ' + e.message);
-            }
-        };
+        document.getElementById('closeEditCategoryModalBtn').addEventListener('click', closeEditCategoryModal);
+        editCategoryModal.addEventListener('click', (e) => { if (e.target === editCategoryModal) closeEditCategoryModal(); });
 
-        document.getElementById('categoryForm')?.addEventListener('submit', async (e) => {
+        document.getElementById('editCategoryPhotoInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                document.getElementById('editCategoryPhotoPreviewImg').src = ev.target.result;
+                document.getElementById('editCategoryPhotoPreview').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        editCategoryForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const input = document.getElementById('newCategoryName');
-            const name = input.value.trim();
-            if(!name) return;
-            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const id = document.getElementById('editCategoryId').value;
+            const name = document.getElementById('editCategoryName').value.trim();
+            if (!name) return;
+            const submitBtn = editCategoryForm.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Salvando...';
             try {
-                await fetchJSON(CATEGORIES_URL, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ name }) });
-                input.value = '';
+                const formData = new FormData();
+                formData.append('name', name);
+                const photoFile = document.getElementById('editCategoryPhotoInput').files[0];
+                if (photoFile) formData.append('photo', photoFile);
+                const res = await fetch(`${CATEGORIES_URL}/${id}`, { method: 'PUT', body: formData });
+                if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || `Erro ${res.status}`); }
+                closeEditCategoryModal();
+                showToast('Categoria atualizada com sucesso!', 'success');
                 await loadCategories();
             } catch (error) {
-                alert('Erro ao criar categoria: ' + error.message);
+                showToast('Erro ao atualizar categoria: ' + error.message, 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             }
         });
 
-        // ---------- PRODUTOS ----------
-        async function fetchProducts() {
-            try {
-                allProducts = await fetchJSON(PRODUCTS_URL);
-                applyFilterAndRender();
-                updateDashboardStats();
-            } catch(err) { 
-                console.error(err); 
-                allProducts = [];
-                applyFilterAndRender();
-            }
-        }
+        window.editCategoryHandler = (id) => {
+            const cat = allCategories.find(c => c.id === id);
+            if (cat) openEditCategoryModal(cat);
+        };
 
-        function renderProductTable(products) {
-            const tbody = document.getElementById('productTableBody');
-            const mobileContainer = document.getElementById('productMobileCards');
-            if(!products.length) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8">Nenhum produto</td></tr>`;
-                if(mobileContainer) mobileContainer.innerHTML = '<p class="text-slate-400 text-center py-4">Nenhum produto</p>';
-                return;
-            }
-            tbody.innerHTML = products.map(p => {
-                const imgHtml = p.photo_urls && p.photo_urls.length ? `<img src="${escapeHtml(p.photo_urls[0])}" class="thumbnail w-10 h-10">` : `<div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center"><i class="ph ph-image text-slate-400"></i></div>`;
-                const subcat = allSubcategories.find(s => s.id === p.subCategoryId);
-                const subcatName = subcat ? subcat.name : '-';
-                const cat = allCategories.find(c => c.id === p.categoryId);
-                return `<tr class="hover:bg-slate-50/70">
-                    <td class="px-4 py-3">${imgHtml}</td>
-                    <td class="px-4 py-3"><div class="font-medium">${escapeHtml(p.name)}</div><div class="text-xs text-slate-400">${escapeHtml(cat?.name || '')} / ${subcatName}</div></td>
-                    <td class="px-4 py-3"><input type="number" value="${p.stock}" onchange="updateStock('${p.id}', this.value)" class="w-20 px-2 py-1 rounded-lg border text-center bg-slate-50 text-sm"></td>
-                    <td class="px-4 py-3"><input type="number" step="0.01" value="${Number(p.price).toFixed(2)}" onblur="updatePrice('${p.id}', this.value)" class="w-28 px-2 py-1 rounded-lg border text-center bg-slate-50 font-semibold"></td>
-                    <td class="px-4 py-3 text-center"><label class="switch"><input type="checkbox" ${p.on_sale ? 'checked' : ''} onchange="toggleSale('${p.id}', this.checked)"><span class="slider"></span></label></td>
-                    <td class="px-4 py-3 text-center"><label class="switch"><input type="checkbox" ${p.is_featured ? 'checked' : ''} onchange="toggleFeatured('${p.id}', this.checked)"><span class="slider"></span></label></td>
-                    <td class="px-4 py-3 text-center"><button onclick="deleteProduct('${p.id}')" class="text-slate-300 hover:text-accent"><i class="ph ph-trash-simple text-xl"></i></button></td>
-                </tr>`;
-            }).join('');
-            if(mobileContainer) {
-                mobileContainer.innerHTML = products.map(p => {
-                    const imgHtml = p.photo_urls && p.photo_urls.length ? `<img src="${escapeHtml(p.photo_urls[0])}" class="w-12 h-12 rounded-lg object-cover">` : `<div class="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center"><i class="ph ph-image"></i></div>`;
-                    return `<div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
-                        <div class="flex gap-3"><div>${imgHtml}</div><div class="font-bold text-primary">${escapeHtml(p.name)}</div></div>
-                        <div class="grid grid-cols-2 gap-2 text-sm"><span>Estoque:</span><input type="number" value="${p.stock}" onchange="updateStock('${p.id}', this.value)" class="w-20 px-2 py-1 rounded border text-center"></div>
-                        <div class="grid grid-cols-2 gap-2 text-sm"><span>Preço:</span><input type="number" step="0.01" value="${Number(p.price).toFixed(2)}" onblur="updatePrice('${p.id}', this.value)" class="w-28 px-2 py-1 rounded border text-center"></div>
-                        <div class="flex justify-between"><span>Oferta:</span><label class="switch"><input type="checkbox" ${p.on_sale ? 'checked' : ''} onchange="toggleSale('${p.id}', this.checked)"><span class="slider"></span></label></div>
-                        <div class="flex justify-between"><span>Destaque:</span><label class="switch"><input type="checkbox" ${p.is_featured ? 'checked' : ''} onchange="toggleFeatured('${p.id}', this.checked)"><span class="slider"></span></label></div>
-                        <button onclick="deleteProduct('${p.id}')" class="text-accent text-sm"><i class="ph ph-trash"></i> Excluir</button>
-                    </div>`;
-                }).join('');
-            }
-        }
-        
-        window.toggleSale = async (id, checked) => {
-            try {
-                await fetch(`${PRODUCTS_URL}/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ on_sale: checked }) });
-                const prod = allProducts.find(p => p.id === id); if(prod) prod.on_sale = checked;
-                applyFilterAndRender();
-                updateDashboardStats();
-            } catch(e) { alert('Erro: ' + e.message); }
+        window.deleteSubcategoryHandler = (id) => {
+            showConfirmModal('Excluir subcategoria', 'Tem certeza que deseja excluir esta subcategoria?', async () => {
+                try {
+                    await fetch(`${SUBCATEGORIES_URL}/${id}`, { method: 'DELETE' });
+                    showToast('Subcategoria excluída com sucesso', 'success');
+                    await loadSubcategories();
+                    renderCategoriesList();
+                    const catSelect = document.getElementById('productCategorySelect');
+                    if(catSelect.value) {
+                        const subs = await fetchJSON(`${API_BASE}/categories/${catSelect.value}/subcategories`);
+                        const subSelect = document.getElementById('productSubcategorySelect');
+                        subSelect.innerHTML = '<option value="">Selecione a subcategoria *</option>';
+                        subs.forEach(sub => { 
+                            let opt = document.createElement('option'); 
+                            opt.value = sub.id; 
+                            opt.textContent = sub.name; 
+                            subSelect.appendChild(opt); 
+                        });
+                        subSelect.disabled = subs.length === 0;
+                    }
+                } catch(e) {
+                    showToast('Erro ao excluir subcategoria: ' + e.message, 'error');
+                }
+            });
         };
-        window.toggleFeatured = async (id, checked) => {
-            try {
-                await fetch(`${PRODUCTS_URL}/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ is_featured: checked }) });
-                const prod = allProducts.find(p => p.id === id); if(prod) prod.is_featured = checked;
-                applyFilterAndRender();
-                updateDashboardStats();
-            } catch(e) { alert('Erro: ' + e.message); }
-        };
-        window.updateStock = async (id, val) => { 
-            const stock = parseInt(val); if(isNaN(stock)) return; 
-            try {
-                await fetch(`${PRODUCTS_URL}/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ stock }) });
-                const p = allProducts.find(p=>p.id===id); if(p) p.stock = stock; 
-                applyFilterAndRender(); 
-                updateDashboardStats(); 
-            } catch(e) { alert('Erro: ' + e.message); }
-        };
-        window.updatePrice = async (id, newPrice) => {
-            const priceFloat = parseFloat(newPrice); if(isNaN(priceFloat)) return;
-            try {
-                await fetch(`${PRODUCTS_URL}/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ price: priceFloat }) });
-                const idx = allProducts.findIndex(p => p.id === id); if(idx !== -1) allProducts[idx].price = priceFloat;
-                applyFilterAndRender(); 
-                updateDashboardStats();
-            } catch(e) { alert('Erro: ' + e.message); }
-        };
-        window.deleteProduct = async (id) => { 
-            if(!confirm('Excluir produto?')) return; 
-            try {
-                await fetch(`${PRODUCTS_URL}/${id}`, { method: 'DELETE' }); 
-                allProducts = allProducts.filter(p => p.id !== id); 
-                applyFilterAndRender(); 
-                updateDashboardStats(); 
-            } catch(e) { alert('Erro: ' + e.message); }
-        };
-        
-        function applyFilterAndRender() {
-            let filtered = [...allProducts];
-            if(currentSearchTerm.trim()) filtered = filtered.filter(p => p.name.toLowerCase().includes(currentSearchTerm.toLowerCase()));
-            renderProductTable(filtered);
-        }
 
-        document.getElementById('searchProductInput')?.addEventListener('input', (e) => { currentSearchTerm = e.target.value; applyFilterAndRender(); });
+        window.openSubcategoryModal = openSubcategoryModal;
+        window.addSubcategoryPrompt = (catId) => openSubcategoryModal(catId);
+        window.deleteCategory = (id) => deleteCategoryHandler(id);
+        window.deleteSubcategory = (id) => deleteSubcategoryHandler(id);
 
-        // Upload de fotos
+        // ---------- PRODUTOS (REFATORADO COM ACÚMULO DE IMAGENS) ----------
+        // Array global para armazenar arquivos selecionados (acumulativo)
+        let selectedFiles = [];
         const photoInput = document.getElementById('productPhotos');
         const previewContainer = document.getElementById('photoPreviewContainer');
-        let selectedFiles = [];
-        photoInput?.addEventListener('change', (e) => {
-            const files = Array.from(e.target.files);
-            if(files.length > 4) { alert('Máximo de 4 fotos'); photoInput.value = ''; return; }
-            selectedFiles = files;
-            renderPhotoPreview();
-        });
+        const MAX_PHOTOS = 5;
+
+        // Função para renderizar previews a partir do array selectedFiles
         function renderPhotoPreview() {
             previewContainer.innerHTML = '';
             selectedFiles.forEach((file, index) => {
@@ -634,9 +1102,16 @@
                 reader.onload = (e) => {
                     const div = document.createElement('div');
                     div.className = 'photo-preview-item';
-                    div.innerHTML = `<img src="${e.target.result}" alt="Preview"><button type="button" data-index="${index}"><i class="ph ph-x"></i></button>`;
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview">
+                        <button type="button" data-index="${index}" class="remove-photo-btn">
+                            <i class="ph ph-x"></i>
+                        </button>
+                    `;
+                    // Evento de remoção
                     div.querySelector('button').addEventListener('click', () => {
                         selectedFiles.splice(index, 1);
+                        // Atualiza o input file com os arquivos restantes
                         const dt = new DataTransfer();
                         selectedFiles.forEach(f => dt.items.add(f));
                         photoInput.files = dt.files;
@@ -648,28 +1123,209 @@
             });
         }
 
-        document.getElementById('productForm')?.addEventListener('submit', async(e) => {
-            e.preventDefault();
-            const form = e.target;
-            const formData = new FormData(form);
-            const photos = formData.getAll('photos');
-            if(photos.length === 0 || photos.length > 4) {
-                alert('Selecione de 1 a 4 fotos');
+        // Evento de mudança no input de fotos (acumulativo)
+        photoInput.addEventListener('change', (e) => {
+            const newFiles = Array.from(e.target.files);
+            if (newFiles.length === 0) return;
+
+            // Verifica se ultrapassa o limite
+            if (selectedFiles.length + newFiles.length > MAX_PHOTOS) {
+                showToast(`Você pode selecionar no máximo ${MAX_PHOTOS} fotos.`, 'error');
+                photoInput.value = ''; // limpa o input
                 return;
             }
+
+            // Adiciona os novos arquivos ao array global
+            selectedFiles = [...selectedFiles, ...newFiles];
+
+            // Atualiza o input file com todos os arquivos acumulados
+            const dt = new DataTransfer();
+            selectedFiles.forEach(file => dt.items.add(file));
+            photoInput.files = dt.files;
+
+            // Renderiza os previews
+            renderPhotoPreview();
+        });
+
+        // Submissão do formulário de produto (refatorada para usar o array global)
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            
+            // Validação de quantidade de fotos
+            if (selectedFiles.length === 0 || selectedFiles.length > MAX_PHOTOS) {
+                showToast(`Selecione de 1 a ${MAX_PHOTOS} fotos`, 'error');
+                return;
+            }
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Salvando...';
+
             try {
-                const res = await fetch(PRODUCTS_URL, { method: 'POST', body: formData });
-                if(!res.ok) throw new Error(await res.text() || 'Erro no cadastro');
+                // Cria FormData a partir do formulário
+                const formData = new FormData(form);
+                
+                // Remove qualquer entrada 'photos' existente (do input original)
+                formData.delete('photos');
+                
+                // Adiciona cada arquivo do array global sob a chave 'images' (esperada pelo backend)
+                selectedFiles.forEach(file => {
+                    formData.append('images', file);
+                });
+
+                const res = await fetch(PRODUCTS_URL, { 
+                    method: 'POST', 
+                    body: formData 
+                });
+                
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    throw new Error(errorText || 'Erro no cadastro');
+                }
+                
                 await res.json();
+                
+                // Limpeza após sucesso
                 form.reset();
                 selectedFiles = [];
                 previewContainer.innerHTML = '';
+                photoInput.value = ''; // limpa o input file
+                
                 await fetchProducts();
-                await loadCategories();
-            } catch(err) {
-                alert('Erro: ' + err.message);
+                await loadCategories(); // para atualizar categorias se necessário
+                showToast('Produto cadastrado com sucesso!', 'success');
+            } catch (err) {
+                showToast('Erro: ' + err.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
             }
         });
+
+        // Demais funções de produto (fetch, render, toggle, etc.) mantidas
+        async function fetchProducts() {
+            try {
+                allProducts = await fetchJSON(PRODUCTS_URL);
+                applyFilterAndRender();
+                updateDashboardStats();
+            } catch(err) { 
+                console.error(err); 
+                allProducts = [];
+                applyFilterAndRender();
+                showToast('Erro ao carregar produtos', 'error');
+            }
+        }
+
+        window.toggleSale = async (id, checked) => {
+            try {
+                await fetch(`${PRODUCTS_URL}/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ on_sale: checked }) });
+                const prod = allProducts.find(p => p.id === id); if(prod) prod.on_sale = checked;
+                applyFilterAndRender();
+                updateDashboardStats();
+                showToast('Produto atualizado', 'success');
+            } catch(e) { showToast('Erro: ' + e.message, 'error'); }
+        };
+        window.toggleFeatured = async (id, checked) => {
+            try {
+                await fetch(`${PRODUCTS_URL}/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ is_featured: checked }) });
+                const prod = allProducts.find(p => p.id === id); if(prod) prod.is_featured = checked;
+                applyFilterAndRender();
+                updateDashboardStats();
+                showToast('Produto atualizado', 'success');
+            } catch(e) { showToast('Erro: ' + e.message, 'error'); }
+        };
+        window.updateStock = async (id, val) => { 
+            const stock = parseInt(val); if(isNaN(stock)) return; 
+            try {
+                await fetch(`${PRODUCTS_URL}/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ stock }) });
+                const p = allProducts.find(p=>p.id===id); if(p) p.stock = stock; 
+                applyFilterAndRender(); 
+                updateDashboardStats(); 
+                showToast('Estoque atualizado', 'success');
+            } catch(e) { showToast('Erro: ' + e.message, 'error'); }
+        };
+        window.updatePrice = async (id, newPrice) => {
+            const priceFloat = parseFloat(newPrice); if(isNaN(priceFloat)) return;
+            try {
+                await fetch(`${PRODUCTS_URL}/${id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ price: priceFloat }) });
+                const idx = allProducts.findIndex(p => p.id === id); if(idx !== -1) allProducts[idx].price = priceFloat;
+                applyFilterAndRender(); 
+                updateDashboardStats();
+                showToast('Preço atualizado', 'success');
+            } catch(e) { showToast('Erro: ' + e.message, 'error'); }
+        };
+        window.deleteProduct = async (id) => { 
+            showConfirmModal('Excluir produto', 'Tem certeza que deseja excluir este produto?', async () => {
+                try {
+                    await fetch(`${PRODUCTS_URL}/${id}`, { method: 'DELETE' }); 
+                    allProducts = allProducts.filter(p => p.id !== id); 
+                    applyFilterAndRender(); 
+                    updateDashboardStats(); 
+                    showToast('Produto excluído', 'success');
+                } catch(e) { showToast('Erro: ' + e.message, 'error'); }
+            });
+        };
+
+        window.editProduct = (id) => {
+            const product = allProducts.find(p => p.id === id);
+            if (product) openEditModal(product);
+        };
+
+        function renderProductTable(products) {
+            const tbody = document.getElementById('productTableBody');
+            const mobileContainer = document.getElementById('productMobileCards');
+            if(!products.length) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8">Nenhum produto</td></tr>`;
+                if(mobileContainer) mobileContainer.innerHTML = '<p class="text-slate-400 text-center py-4">Nenhum produto</p>';
+                return;
+            }
+            tbody.innerHTML = products.map(p => {
+                const imgHtml = p.images && p.images.length ? `<img src="${escapeHtml(p.images[0])}" class="thumbnail w-10 h-10">` : `<div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center"><i class="ph ph-image text-slate-400"></i></div>`;
+                const subcat = allSubcategories.find(s => s.id === p.subCategoryId);
+                const subcatName = subcat ? subcat.name : '-';
+                const cat = allCategories.find(c => c.id === p.categoryId);
+                return `<tr class="hover:bg-slate-50/70">
+                    <td class="px-4 py-3">${imgHtml}</td>
+                    <td class="px-4 py-3"><div class="font-medium">${escapeHtml(p.name)}</div><div class="text-xs text-slate-400">${escapeHtml(cat?.name || '')} / ${subcatName}</div></td>
+                    <td class="px-4 py-3"><input type="number" value="${p.stock}" onchange="updateStock('${p.id}', this.value)" class="w-20 px-2 py-1 rounded-lg border text-center bg-slate-50 text-sm"></td>
+                    <td class="px-4 py-3"><input type="number" step="0.01" value="${Number(p.price).toFixed(2)}" onblur="updatePrice('${p.id}', this.value)" class="w-28 px-2 py-1 rounded-lg border text-center bg-slate-50 font-semibold"></td>
+                    <td class="px-4 py-3 text-center"><label class="switch"><input type="checkbox" ${p.on_sale ? 'checked' : ''} onchange="toggleSale('${p.id}', this.checked)"><span class="slider"></span></label></td>
+                    <td class="px-4 py-3 text-center"><label class="switch"><input type="checkbox" ${p.is_featured ? 'checked' : ''} onchange="toggleFeatured('${p.id}', this.checked)"><span class="slider"></span></label></td>
+                    <td class="px-4 py-3 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="editProduct('${p.id}')" class="text-primary hover:text-slate-700" title="Editar"><i class="ph ph-pencil-simple text-xl"></i></button>
+                            <button onclick="deleteProduct('${p.id}')" class="text-slate-300 hover:text-accent" title="Excluir"><i class="ph ph-trash-simple text-xl"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+            if(mobileContainer) {
+                mobileContainer.innerHTML = products.map(p => {
+                    const imgHtml = p.images && p.images.length ? `<img src="${escapeHtml(p.images[0])}" class="w-12 h-12 rounded-lg object-cover">` : `<div class="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center"><i class="ph ph-image"></i></div>`;
+                    return `<div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                        <div class="flex gap-3"><div>${imgHtml}</div><div class="font-bold text-primary">${escapeHtml(p.name)}</div></div>
+                        <div class="grid grid-cols-2 gap-2 text-sm"><span>Estoque:</span><input type="number" value="${p.stock}" onchange="updateStock('${p.id}', this.value)" class="w-20 px-2 py-1 rounded border text-center"></div>
+                        <div class="grid grid-cols-2 gap-2 text-sm"><span>Preço:</span><input type="number" step="0.01" value="${Number(p.price).toFixed(2)}" onblur="updatePrice('${p.id}', this.value)" class="w-28 px-2 py-1 rounded border text-center"></div>
+                        <div class="flex justify-between"><span>Oferta:</span><label class="switch"><input type="checkbox" ${p.on_sale ? 'checked' : ''} onchange="toggleSale('${p.id}', this.checked)"><span class="slider"></span></label></div>
+                        <div class="flex justify-between"><span>Destaque:</span><label class="switch"><input type="checkbox" ${p.is_featured ? 'checked' : ''} onchange="toggleFeatured('${p.id}', this.checked)"><span class="slider"></span></label></div>
+                        <div class="flex gap-3 pt-2">
+                            <button onclick="editProduct('${p.id}')" class="flex-1 bg-primary text-white py-2 rounded-lg text-sm flex items-center justify-center gap-1"><i class="ph ph-pencil"></i> Editar</button>
+                            <button onclick="deleteProduct('${p.id}')" class="flex-1 bg-slate-200 text-slate-700 py-2 rounded-lg text-sm flex items-center justify-center gap-1"><i class="ph ph-trash"></i> Excluir</button>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+        }
+
+        function applyFilterAndRender() {
+            let filtered = [...allProducts];
+            if(currentSearchTerm.trim()) filtered = filtered.filter(p => p.name.toLowerCase().includes(currentSearchTerm.toLowerCase()));
+            renderProductTable(filtered);
+        }
+
+        document.getElementById('searchProductInput')?.addEventListener('input', (e) => { currentSearchTerm = e.target.value; applyFilterAndRender(); });
 
         // ---------- PEDIDOS ----------
         async function loadOrders() {
@@ -678,20 +1334,22 @@
                 document.getElementById('ordersTableBody').innerHTML = ordersData.length ? ordersData.map(order => {
                     const status = order.status || 'Pendente';
                     let statusClass = status === 'Pendente' ? 'badge-pending' : (status === 'Pago' ? 'badge-paid' : 'badge-shipped');
-                    return `<tr><td class="px-6 py-4 font-mono">#${order.id}</td><td class="px-6 py-4">${escapeHtml(order.customerName || order.cliente)}</td><td class="px-6 py-4">R$ ${Number(order.total).toFixed(2)}</td><td class="px-6 py-4">R$ ${Number(order.shipping||0).toFixed(2)}</td><td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs ${statusClass}">${status}</span></td><td class="px-6 py-4">${new Date(order.createdAt || order.date).toLocaleDateString('pt-BR')}</td></tr>`;
+                    const customerName = order.customer || order.cliente || 'Cliente';
+                    return `<tr><td class="px-6 py-4 font-mono">#${order.id}</td><td class="px-6 py-4">${escapeHtml(customerName)}</td><td class="px-6 py-4">R$ ${Number(order.total).toFixed(2)}</td><td class="px-6 py-4">R$ ${Number(order.shipping||0).toFixed(2)}</td><td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs ${statusClass}">${status}</span></td><td class="px-6 py-4">${new Date(order.createdAt || order.date).toLocaleDateString('pt-BR')}</td></tr>`;
                 }).join('') : '<tr><td colspan="6" class="text-center py-8">Nenhum pedido</td></tr>';
             } catch(err) {
                 console.error(err);
                 ordersData = [];
                 document.getElementById('ordersTableBody').innerHTML = '<tr><td colspan="6" class="text-center py-8">Erro ao carregar pedidos</td></tr>';
+                showToast('Erro ao carregar pedidos', 'error');
             }
         }
 
-        // ---------- ESTATÍSTICAS (CORRIGIDA) ----------
+        // ---------- ESTATÍSTICAS E GRÁFICO ----------
         function updateDashboardStats() {
             const totalRevenue = ordersData.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
             const avgTicket = ordersData.length ? totalRevenue / ordersData.length : 0;
-            const uniqueCustomers = new Set(ordersData.map(o => o.customerName || o.cliente).filter(Boolean)).size;
+            const uniqueCustomers = new Set(ordersData.map(o => o.customer || o.cliente).filter(Boolean)).size;
             const totalProducts = allProducts.length;
 
             document.getElementById('dashboardTotalRevenue').innerText = `R$ ${totalRevenue.toFixed(2).replace('.',',')}`;
@@ -700,7 +1358,6 @@
             document.getElementById('dashboardTotalProducts').innerText = totalProducts;
         }
 
-        // ---------- GRÁFICO (COM DESTROY) ----------
         function initChart() {
             if (myChartInstance) {
                 myChartInstance.destroy();
@@ -742,15 +1399,13 @@
             }
         }
 
-        // ---------- ORQUESTRADORA REFRESH DASHBOARD ----------
         async function refreshDashboard() {
             try {
                 await fetchProducts();
                 await loadOrders();
                 updateDashboardStats();
                 initChart();
-                updateChartWithFilters(); // aplica filtros padrão e preenche dados
-                // Carrega também críticos e mais vendidos
+                updateChartWithFilters();
                 const critical = allProducts.filter(p => p.stock < 10);
                 document.getElementById('criticalStockCount').innerText = critical.length;
                 document.getElementById('criticalStockList').innerHTML = critical.length ? critical.map(p => `<div class="flex justify-between bg-rose-50 p-3 rounded-xl"><span>${escapeHtml(p.name)} (${p.stock} un.)</span><span class="bg-rose-600 text-white text-xs px-2 py-1 rounded">Crítico</span></div>`).join('') : '<p class="text-slate-400">Nenhum produto crítico</p>';
@@ -761,13 +1416,15 @@
                 document.getElementById('topSellingList').innerHTML = top5.length ? top5.map(([pid,qty],idx) => { const prod = allProducts.find(p=>p.id==pid) || {name:'Produto'}; return `<div class="flex items-center gap-3"><span class="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">${idx+1}</span><span class="flex-1">${escapeHtml(prod.name)}</span><span class="bg-slate-100 px-2 py-1 rounded-full text-sm">${qty} vend.</span></div>`; }).join('') : '<p class="text-slate-400">Nenhuma venda</p>';
                 
                 const recent = [...ordersData].sort((a,b)=>new Date(b.createdAt||b.date)-new Date(a.createdAt||a.date)).slice(0,5);
-                document.getElementById('recentActivityTimeline').innerHTML = recent.length ? recent.map(o => `<div class="flex gap-3"><i class="ph ph-shopping-cart text-primary"></i><div><p class="text-sm font-semibold">${escapeHtml(o.customerName||o.cliente)}</p><p class="text-xs text-slate-500">${new Date(o.createdAt||o.date).toLocaleDateString()} · R$ ${Number(o.total).toFixed(2)}</p></div></div>`).join('') : '<p class="text-slate-400">Nenhuma atividade</p>';
+                document.getElementById('recentActivityTimeline').innerHTML = recent.length ? recent.map(o => {
+                    const customerName = o.customer || o.cliente || 'Cliente';
+                    return `<div class="flex gap-3"><i class="ph ph-shopping-cart text-primary"></i><div><p class="text-sm font-semibold">${escapeHtml(customerName)}</p><p class="text-xs text-slate-500">${new Date(o.createdAt||o.date).toLocaleDateString()} · R$ ${Number(o.total).toFixed(2)}</p></div></div>`;
+                }).join('') : '<p class="text-slate-400">Nenhuma atividade</p>';
             } catch(err) {
                 console.error("Erro no refreshDashboard:", err);
             }
         }
 
-        // Eventos de filtro
         document.getElementById('periodFilter')?.addEventListener('change', updateChartWithFilters);
         document.getElementById('paymentFilter')?.addEventListener('change', updateChartWithFilters);
 
@@ -779,6 +1436,13 @@
                     const tab = btn.getAttribute('data-tab');
                     Object.values(panels).forEach(p => p.classList.add('hidden'));
                     panels[tab].classList.remove('hidden');
+                    document.querySelectorAll('.tab-btn').forEach(b => {
+                        b.classList.remove('bg-white', 'text-primary', 'shadow-sm', 'border-b-0');
+                        b.classList.add('text-slate-500');
+                    });
+                    btn.classList.add('bg-white', 'text-primary', 'shadow-sm', 'border', 'border-b-0');
+                    btn.classList.remove('text-slate-500');
+                    
                     if(tab === 'dashboard') refreshDashboard();
                     if(tab === 'products' && !allProducts.length) fetchProducts();
                     if(tab === 'categories') loadCategories();

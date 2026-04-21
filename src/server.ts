@@ -4,53 +4,53 @@ import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import fs from "fs";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { prisma } from "./lib/prisma.js";
 
 const app = express();
 const port = 3000;
 
-// --- AJUSTE DE CAMINHOS PARA ES MODULES (Node moderno) ---
+// --- AJUSTE DE CAMINHOS PARA ES MODULES ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Importante: Como o server.ts está em 'src/', subimos um nível para achar a 'public' na raiz do projeto
 const publicPath = path.resolve(__dirname, "../public");
 const uploadsPath = path.join(publicPath, "uploads");
 
-// --- MIDDLEWARES ---
+// --- MIDDLEWARES DE SEGURANÇA E PERFORMANCE ---
+app.use(helmet({ contentSecurityPolicy: false })); // Permite carregar scripts externos como Tailwind/Phosphor
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 200,
+    message: "Muitas requisições, tente novamente mais tarde."
+});
+app.use("/api/", limiter);
+
 app.use(cors());
 app.use(express.json());
-
-// 1. Serve todos os arquivos (HTML, CSS, JS) da pasta public automaticamente
 app.use(express.static(publicPath));
-
-// 2. Serve a pasta de fotos especificamente
 app.use("/uploads", express.static(uploadsPath));
 
 // --- CONFIGURAÇÃO DO MULTER (UPLOAD DE FOTOS) ---
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        // Garante que a pasta de fotos existe antes de salvar
-        if (!fs.existsSync(uploadsPath)) {
-            fs.mkdirSync(uploadsPath, { recursive: true });
-        }
+        if (!fs.existsSync(uploadsPath)) fs.mkdirSync(uploadsPath, { recursive: true });
         cb(null, uploadsPath);
     },
     filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
         cb(null, uniqueSuffix + path.extname(file.originalname));
     }
 });
-const upload = multer({ storage, limits: { files: 4 } });
+const upload = multer({ storage });
 
-// --- ROTAS DE API ---
-// --- ENTIDADE: CATEGORIAS ---
+// --- ROTAS DE CATEGORIAS E SUBCATEGORIAS ---
 
+// GET: Lista categorias incluindo suas subcategorias (Vital para o frontend)
 app.get("/api/categories", async (req, res) => {
     try {
         const categories = await prisma.category.findMany({
-            include: { subCategories: true },
-            orderBy: { name: 'asc' }
+            include: { subCategories: true }
         });
         res.json(categories);
     } catch (error) {
@@ -58,89 +58,106 @@ app.get("/api/categories", async (req, res) => {
     }
 });
 
-app.post("/api/categories", async (req, res) => {
+app.post("/api/categories", upload.single("photo"), async (req, res) => {
     try {
         const { name } = req.body;
-        const category = await prisma.category.create({ data: { name: name.trim() } });
+        if (!name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+        const file = req.file as Express.Multer.File | undefined;
+        const imageUrl = file ? `/uploads/${file.filename}` : null;
+        const category = await prisma.category.create({ data: { name: name.trim(), imageUrl } });
         res.status(201).json(category);
-    } catch (error: any) {
-        if (error.code === 'P2002') return res.status(400).json({ error: "Esta categoria já existe." });
+    } catch (e: any) {
+        if (e?.code === "P2002") return res.status(409).json({ error: "Categoria já existe" });
         res.status(500).json({ error: "Erro ao criar categoria" });
     }
 });
 
-// Rota de Exclusão de Categoria
 app.delete("/api/categories/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        // 1. Remove subcategorias primeiro (Integridade Referencial)
-        await prisma.subCategory.deleteMany({ where: { categoryId: id } });
-        // 2. Remove a categoria
         await prisma.category.delete({ where: { id } });
         res.status(204).send();
-    } catch (error) {
-        console.error("Erro ao deletar categoria:", error);
-        res.status(500).json({ error: "Erro ao excluir. Verifique se há produtos vinculados." });
+    } catch (e) {
+        res.status(500).json({ error: "Erro ao deletar categoria" });
     }
 });
 
-// --- SUBCATEGORIAS ---
+app.put("/api/categories/:id", upload.single("photo"), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name } = req.body;
+        if (!name?.trim()) return res.status(400).json({ error: "Nome obrigatório" });
+        const data: any = { name: name.trim() };
+        const file = req.file as Express.Multer.File | undefined;
+        if (file) data.imageUrl = `/uploads/${file.filename}`;
+        const category = await prisma.category.update({ where: { id }, data });
+        res.json(category);
+    } catch (e: any) {
+        if (e?.code === "P2025") return res.status(404).json({ error: "Categoria não encontrada" });
+        if (e?.code === "P2002") return res.status(409).json({ error: "Já existe uma categoria com esse nome" });
+        res.status(500).json({ error: "Erro ao atualizar categoria" });
+    }
+});
 
+app.delete("/api/subcategories/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        await prisma.subCategory.delete({ where: { id } });
+        res.status(204).send();
+    } catch (e) {
+        res.status(500).json({ error: "Erro ao deletar subcategoria" });
+    }
+});
+
+// GET: Subcategorias de uma categoria específica (usado pelo select de produto)
 app.get("/api/categories/:id/subcategories", async (req, res) => {
     try {
         const { id } = req.params;
-        const subcategories = await prisma.subCategory.findMany({
-            where: { categoryId: id },
-            orderBy: { name: 'asc' }
-        });
-        
-        // Retorna um array (vazio ou não), mas nunca 404 se a rota existe
-        res.json(subcategories);
+        const subs = await prisma.subCategory.findMany({ where: { categoryId: id } });
+        res.json(subs);
     } catch (error) {
-        console.error("Erro ao buscar subcategorias:", error);
         res.status(500).json({ error: "Erro ao buscar subcategorias" });
     }
 });
 
+// GET: Lista todas as subcategorias
+app.get("/api/subcategories", async (req, res) => {
+    try {
+        const subs = await prisma.subCategory.findMany();
+        res.json(subs);
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao buscar subcategorias" });
+    }
+});
 
 app.post("/api/subcategories", async (req, res) => {
     try {
         const { name, categoryId } = req.body;
-        const sub = await prisma.subCategory.create({ data: { name: name.trim(), categoryId } });
-        res.status(201).json(sub);
+        const subCategory = await prisma.subCategory.create({
+            data: { name, categoryId }
+        });
+        res.status(201).json(subCategory);
     } catch (e) {
         res.status(500).json({ error: "Erro ao criar subcategoria" });
     }
 });
 
-// --- PRODUTOS ---
+// --- ROTAS DE PRODUTOS ---
 
 app.get("/api/products", async (req, res) => {
     try {
         const products = await prisma.product.findMany({
-            include: { subCategory: { include: { category: true } } },
             orderBy: { createdAt: 'desc' }
         });
         res.json(products);
-    } catch (e) {
+    } catch (error) {
         res.status(500).json({ error: "Erro ao buscar produtos" });
     }
 });
 
-// Rota de Exclusão de Produto
-app.delete("/api/products/:id", async (req, res) => {
+app.post("/api/products", upload.array("photos", 5), async (req, res) => {
     try {
-        const { id } = req.params;
-        await prisma.product.delete({ where: { id } });
-        res.status(204).send();
-    } catch (error) {
-        res.status(500).json({ error: "Erro ao excluir produto" });
-    }
-});
-
-app.post("/api/products", upload.array("photos", 4), async (req, res) => {
-    try {
-        const { name, description, price, stock, subCategoryId, brand, model, voltage } = req.body;
+        const { name, description, price, stock, brand, model, voltage, subCategoryId } = req.body;
         const files = req.files as Express.Multer.File[];
         const imageUrls = files ? files.map(f => `/uploads/${f.filename}`) : [];
 
@@ -159,13 +176,46 @@ app.post("/api/products", upload.array("photos", 4), async (req, res) => {
         });
         res.status(201).json(product);
     } catch (e) {
+        console.error(e);
         res.status(500).json({ error: "Erro ao criar produto" });
     }
 });
 
-// --- ROTA DE FALLBACK (Para aceitar localhost:3000/admin sem o .html) ---
-app.get("/admin", (req, res) => {
-    res.sendFile(path.join(publicPath, "admin.html"));
+app.put("/api/products/:id", upload.array("photos", 5), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, description, price, stock, brand, model, voltage, subCategoryId, on_sale, is_featured } = req.body;
+        const files = req.files as Express.Multer.File[];
+
+        const data: any = {
+            name, description, brand, model, voltage,
+            price: parseFloat(price),
+            stock: parseInt(stock),
+            subCategoryId: subCategoryId || null,
+            on_sale: on_sale === "true" || on_sale === true,
+            is_featured: is_featured === "true" || is_featured === true,
+        };
+
+        if (files && files.length > 0) {
+            data.images = files.map(f => `/uploads/${f.filename}`);
+        }
+
+        const product = await prisma.product.update({ where: { id }, data });
+        res.json(product);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: "Erro ao atualizar produto" });
+    }
+});
+
+app.delete("/api/products/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        await prisma.product.delete({ where: { id } });
+        res.status(204).send();
+    } catch (e) {
+        res.status(500).json({ error: "Erro ao deletar produto" });
+    }
 });
 
 // --- ROTA DE PEDIDOS (API ORDERS) ---
@@ -176,16 +226,18 @@ app.get("/api/orders", async (req, res) => {
         });
         res.json(orders);
     } catch (error) {
-        console.error("Erro ao buscar pedidos:", error);
-        // Retorna um array vazio para o dashboard não travar, mesmo se der erro
         res.json([]); 
     }
 });
 
-// --- INICIALIZAÇÃO ---
+// --- ROTA DE FALLBACK ADMIN ---
+app.get("/admin", (req, res) => {
+    res.sendFile(path.join(publicPath, "admin.html"));
+});
+
 // --- INICIALIZAÇÃO ---
 app.listen(port, "0.0.0.0", () => {
     console.log(`🚀 Elétrica Moro Backend rodando em:`);
     console.log(`   > Local:    http://localhost:${port}`);
-    console.log(`   > Rede:     http://127.0.0.1:${port}`);
+    console.log(`   > Rede/WSL: http://127.0.0.1:${port}`);
 });
