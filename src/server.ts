@@ -183,8 +183,9 @@ app.get("/api/orders", async (req, res) => {
 });
 
 // --- INICIALIZAÇÃO ---
-app.listen(port, () => {
-    console.log(`\n🚀 Servidor Elétrica Moro pronto!`);
-    console.log(`🔗 Link Principal: http://localhost:${port}`);
-    console.log(`🔗 Link do Painel: http://localhost:${port}/admin.html\n`);
+// --- INICIALIZAÇÃO ---
+app.listen(port, "0.0.0.0", () => {
+    console.log(`🚀 Elétrica Moro Backend rodando em:`);
+    console.log(`   > Local:    http://localhost:${port}`);
+    console.log(`   > Rede:     http://127.0.0.1:${port}`);
 });

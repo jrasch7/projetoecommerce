@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
@@ -7,25 +5,24 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // A URL foi removida daqui e deve estar no seu prisma.config.ts
 }
 
 model Product {
-  id             String       @id @default(uuid())
-  name           String
-  description    String?
-  brand          String?      
-  model          String?      
-  voltage        String?      
-  price          Float
-  stock          Int          @default(0)
-  images         Json?         
-  is_featured    Boolean      @default(false)
-  on_sale        Boolean      @default(false)
-  subCategoryId  String?
-  subCategory    SubCategory? @relation(fields: [subCategoryId], references: [id])
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id            String       @id @default(uuid())
+  name          String
+  description   String?
+  price         Float
+  stock         Int          @default(0)
+  is_featured   Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  on_sale       Boolean      @default(false)
+  brand         String?
+  images        Json?
+  model         String?
+  subCategoryId String?
+  voltage       String?
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id])
 }
 
 model Category {
@@ -39,8 +36,8 @@ model SubCategory {
   id         String    @id @default(uuid())
   name       String
   categoryId String
-  category   Category  @relation(fields: [categoryId], references: [id])
   products   Product[]
+  category   Category  @relation(fields: [categoryId], references: [id])
 }
 
 model Order {
@@ -50,8 +47,8 @@ model Order {
   status      String   @default("Pendente")
   payment     String   @default("Não informado")
   address     String?
-  zipCode     String?  
-  shippingFee Float?   
   items       Json
   createdAt   DateTime @default(now())
+  shippingFee Float?
+  zipCode     String?
 }
