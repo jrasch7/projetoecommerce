@@ -2112,55 +2112,64 @@
             }
         }
 
+        // Helpers null-safe (elementos podem não existir na aba atual)
+        function setVal(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.value = value;
+        }
+        function getVal(id, fallback = '') {
+            const el = document.getElementById(id);
+            return el ? el.value : fallback;
+        }
+        function setSrc(id, src) {
+            const el = document.getElementById(id);
+            if (el) el.src = src;
+        }
+        function showEl(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('hidden');
+        }
+
         // Load existing config
         async function loadConfig() {
             try {
                 const res = await fetch(CONFIG_URL);
                 const data = await res.json();
                 currentConfig = data;
-                
+
                 if (data.config) {
                     const config = data.config;
-                    document.getElementById('storeName').value = config.storeName || '';
-                    document.getElementById('primaryColor').value = config.primaryColor || '#0a2540';
-                    document.getElementById('primaryColorText').value = config.primaryColor || '#0a2540';
-                    document.getElementById('secondaryColor').value = config.secondaryColor || '#1a365d';
-                    document.getElementById('secondaryColorText').value = config.secondaryColor || '#1a365d';
-                    document.getElementById('accentColor').value = config.accentColor || '#e74c3c';
-                    document.getElementById('accentColorText').value = config.accentColor || '#e74c3c';
-                    document.getElementById('fontFamily').value = config.fontFamily || 'Inter';
-                    
-                    // Load social media
-                    document.getElementById('instagramUrl').value = config.instagramUrl || '';
-                    document.getElementById('whatsappUrl').value = config.whatsappUrl || '';
-                    document.getElementById('facebookUrl').value = config.facebookUrl || '';
-                    
-                    // Load footer text
-                    document.getElementById('footerText').value = config.footerText || '© 2026 Elétrica Moro - Todos os direitos reservados';
-                    
+                    setVal('storeName', config.storeName || '');
+                    setVal('primaryColor', config.primaryColor || '#0a2540');
+                    setVal('primaryColorText', config.primaryColor || '#0a2540');
+                    setVal('secondaryColor', config.secondaryColor || '#1a365d');
+                    setVal('secondaryColorText', config.secondaryColor || '#1a365d');
+                    setVal('accentColor', config.accentColor || '#e74c3c');
+                    setVal('accentColorText', config.accentColor || '#e74c3c');
+                    setVal('fontFamily', config.fontFamily || 'Inter');
+
+                    setVal('instagramUrl', config.instagramUrl || '');
+                    setVal('whatsappUrl', config.whatsappUrl || '');
+                    setVal('facebookUrl', config.facebookUrl || '');
+                    setVal('footerText', config.footerText || '© 2026 Elétrica Moro - Todos os direitos reservados');
+
                     if (config.logo) {
-                        document.getElementById('logoPreview').src = config.logo;
-                        document.getElementById('logoPreviewContainer').classList.remove('hidden');
+                        setSrc('logoPreview', config.logo);
+                        showEl('logoPreviewContainer');
                     }
-                    
-                    // Load favicon
                     if (config.favicon) {
-                        document.getElementById('faviconPreview').src = config.favicon;
-                        document.getElementById('faviconPreviewContainer').classList.remove('hidden');
+                        setSrc('faviconPreview', config.favicon);
+                        showEl('faviconPreviewContainer');
                     }
-                    
-                    // Load SEO fields
-                    document.getElementById('metaTitle').value = config.metaTitle || '';
-                    document.getElementById('metaDescription').value = config.metaDescription || '';
-                    document.getElementById('metaKeywords').value = config.metaKeywords || '';
-                    
-                    // Load banners
+
+                    setVal('metaTitle', config.metaTitle || '');
+                    setVal('metaDescription', config.metaDescription || '');
+                    setVal('metaKeywords', config.metaKeywords || '');
+
                     if (config.banners && Array.isArray(config.banners)) {
                         banners = config.banners;
                         renderBanners();
                     }
-                    
-                    // Load benefits
                     if (config.benefits && Array.isArray(config.benefits)) {
                         benefits = config.benefits;
                         renderBenefits();
@@ -2176,18 +2185,18 @@
             e.preventDefault();
             
             const formData = {
-                storeName: document.getElementById('storeName').value,
-                primaryColor: document.getElementById('primaryColor').value,
-                secondaryColor: document.getElementById('secondaryColor').value,
-                accentColor: document.getElementById('accentColor').value,
-                fontFamily: document.getElementById('fontFamily').value,
-                instagramUrl: document.getElementById('instagramUrl').value,
-                whatsappUrl: document.getElementById('whatsappUrl').value,
-                facebookUrl: document.getElementById('facebookUrl').value,
-                footerText: document.getElementById('footerText').value,
-                metaTitle: document.getElementById('metaTitle').value,
-                metaDescription: document.getElementById('metaDescription').value,
-                metaKeywords: document.getElementById('metaKeywords').value,
+                storeName: getVal('storeName'),
+                primaryColor: getVal('primaryColor', '#0a2540'),
+                secondaryColor: getVal('secondaryColor', '#1a365d'),
+                accentColor: getVal('accentColor', '#e74c3c'),
+                fontFamily: getVal('fontFamily', 'Inter'),
+                instagramUrl: getVal('instagramUrl'),
+                whatsappUrl: getVal('whatsappUrl'),
+                facebookUrl: getVal('facebookUrl'),
+                footerText: getVal('footerText'),
+                metaTitle: getVal('metaTitle'),
+                metaDescription: getVal('metaDescription'),
+                metaKeywords: getVal('metaKeywords'),
                 banners: banners,
                 benefits: benefits,
             };
