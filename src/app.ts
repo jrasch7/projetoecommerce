@@ -12,7 +12,7 @@ import productsRouter from "./routes/products.js";
 import ordersRouter from "./routes/orders.js";
 import configRouter from "./routes/config.js";
 import paymentsRouter from "./routes/payments.js";
-import authRouter from "./routes/auth.js";
+import customerRouter from "./routes/customer.js";
 import adminRouter from "./routes/admin.js";
 import { errorHandler } from "./middleware/error.js";
 
@@ -104,7 +104,7 @@ app.use("/api/products", productsRouter);
 app.use("/api/orders", ordersRouter);
 app.use("/api/config", configRouter);
 app.use("/api/payments", paymentsRouter);
-app.use("/api/auth", authRouter);
+app.use("/api/customer", customerRouter);
 app.use("/api/admin", adminRouter);
 
 app.use(errorHandler);

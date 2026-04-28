@@ -59,7 +59,7 @@ function isAdminUser(user) {
  * Guard: garante que há sessão admin válida. Caso contrário, redireciona pra login.
  * Retorna o user quando OK.
  */
-async function requireAdmin(loginUrl = "/admin-login.html") {
+async function requireAdmin(loginUrl = "/login.html") {
   const user = await getUser();
   if (!user) {
     window.location.href = `${loginUrl}?redirect=${encodeURIComponent(window.location.pathname)}`;
@@ -75,7 +75,7 @@ async function requireAdmin(loginUrl = "/admin-login.html") {
 
 async function signOut() {
   await supabase.auth.signOut();
-  window.location.href = "/admin-login.html";
+  window.location.href = "/login.html";
 }
 
 /**

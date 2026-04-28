@@ -152,17 +152,12 @@
                         </button>
                     </form>
                     <nav class="flex items-center gap-4">
-                        <div class="relative group">
-                            <button class="flex items-center gap-2 text-white p-2 hover:bg-white/10 rounded-lg transition-all">
+                        <div id="accountWidget" class="relative">
+                            <!-- Renderizado dinamicamente por updateAccountWidget() -->
+                            <button class="flex items-center gap-2 text-white p-2 hover:bg-white/10 rounded-lg transition-all opacity-50">
                                 <i class="ph ph-user text-2xl"></i>
-                                <span class="hidden lg:inline text-sm font-medium">Minha Conta</span>
-                                <i class="ph ph-caret-down text-xs rotate-icon"></i>
+                                <span class="hidden lg:inline text-sm font-medium">Carregando…</span>
                             </button>
-                            <ul class="absolute right-0 top-full mt-2 w-48 bg-secondary rounded-xl shadow-2xl py-2 hidden group-hover:block border border-white/5 z-50">
-                                <li><a href="#" class="block px-5 py-3 text-sm text-white hover:bg-white/10" onclick="AppCore.showMessage('Meus Pedidos','Em breve.'); return false;"><i class="ph ph-package mr-2"></i> Meus Pedidos</a></li>
-                                <li><a href="#" class="block px-5 py-3 text-sm text-white hover:bg-white/10" onclick="AppCore.showMessage('Meus Dados','Em breve.'); return false;"><i class="ph ph-gear mr-2"></i> Meus Dados</a></li>
-                                <li class="border-t border-white/10 mt-2"><a href="#" class="block px-5 py-3 text-sm text-accent hover:bg-white/10" onclick="AppCore.showMessage('Logout','Você saiu da conta.'); return false;">Sair</a></li>
-                            </ul>
                         </div>
                         <button onclick="AppCore.toggleCart()" class="flex items-center gap-2 text-white p-2 hover:bg-white/10 rounded-lg transition-all">
                             <div class="relative">
@@ -615,6 +610,287 @@ document.head.appendChild(style);
         }
     }
 
+    // ---------- AUTH (Supabase) ----------
+    let _supabase = null;
+    let _currentUser = null;
+
+    async function getSupabase() {
+        if (_supabase) return _supabase;
+        try {
+            // Garante que /js/supabase-config.js carregou (define window.SUPABASE_CONFIG)
+            if (!window.SUPABASE_CONFIG) {
+                await new Promise((resolve, reject) => {
+                    const s = document.createElement('script');
+                    s.src = '/js/supabase-config.js';
+                    s.onload = resolve;
+                    s.onerror = reject;
+                    document.head.appendChild(s);
+                });
+            }
+            const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+            const cfg = window.SUPABASE_CONFIG || {};
+            _supabase = createClient(cfg.url, cfg.anonKey, {
+                auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: window.localStorage },
+            });
+            _supabase.auth.onAuthStateChange((_event, session) => {
+                _currentUser = session?.user || null;
+                renderAccountWidget();
+            });
+        } catch (err) {
+            console.warn('[auth] supabase indisponível:', err.message);
+        }
+        return _supabase;
+    }
+
+    function isAdminUser(user) {
+        return !!user && user.user_metadata && user.user_metadata.is_admin === true;
+    }
+
+    async function refreshUser() {
+        const sb = await getSupabase();
+        if (!sb) return null;
+        const { data } = await sb.auth.getUser();
+        _currentUser = data.user || null;
+        return _currentUser;
+    }
+
+    function renderAccountWidget() {
+        const widget = document.getElementById('accountWidget');
+        if (!widget) return;
+        const user = _currentUser;
+        if (!user) {
+            widget.innerHTML = `
+                <button id="openLoginBtn" type="button" class="flex items-center gap-2 text-white p-2 hover:bg-white/10 rounded-lg transition-all">
+                    <i class="ph ph-sign-in text-2xl"></i>
+                    <span class="hidden lg:inline text-sm font-medium">Entrar</span>
+                </button>
+            `;
+            document.getElementById('openLoginBtn').addEventListener('click', () => openAuthModal('login'));
+            return;
+        }
+        const admin = isAdminUser(user);
+        const initial = (user.email || '?')[0].toUpperCase();
+        const adminLink = admin
+            ? `<li class="border-t border-white/10 mt-2 pt-2"><a href="/admin.html" class="block px-5 py-3 text-sm text-amber-300 hover:bg-white/10"><i class="ph-bold ph-shield-check mr-2"></i> Painel administrativo</a></li>`
+            : '';
+        widget.innerHTML = `
+            <button id="accountBtn" class="flex items-center gap-2 text-white p-2 hover:bg-white/10 rounded-lg transition-all">
+                <span class="w-8 h-8 rounded-full bg-accent text-white text-sm font-bold flex items-center justify-center">${initial}</span>
+                <span class="hidden lg:inline text-sm font-medium truncate max-w-[140px]">${user.email}</span>
+                <i class="ph ph-caret-down text-xs"></i>
+            </button>
+            <ul id="accountMenu" class="absolute right-0 top-full mt-2 w-60 bg-secondary rounded-xl shadow-2xl py-2 hidden border border-white/5 z-50">
+                <li class="px-5 py-2 border-b border-white/10 mb-1">
+                    <p class="text-xs text-white/50">Logado como</p>
+                    <p class="text-sm text-white truncate">${user.email}</p>
+                </li>
+                <li><a href="/minha-conta.html?tab=pedidos" class="block px-5 py-3 text-sm text-white hover:bg-white/10"><i class="ph ph-package mr-2"></i> Meus pedidos</a></li>
+                <li><a href="/minha-conta.html?tab=interesses" class="block px-5 py-3 text-sm text-white hover:bg-white/10"><i class="ph ph-heart mr-2"></i> Meus interesses</a></li>
+                <li><a href="/minha-conta.html?tab=perfil" class="block px-5 py-3 text-sm text-white hover:bg-white/10"><i class="ph ph-user mr-2"></i> Meus dados</a></li>
+                ${adminLink}
+                <li class="border-t border-white/10 mt-2"><a href="#" id="logoutBtn" class="block px-5 py-3 text-sm text-accent hover:bg-white/10"><i class="ph ph-sign-out mr-2"></i> Sair</a></li>
+            </ul>
+        `;
+        const btn = document.getElementById('accountBtn');
+        const menu = document.getElementById('accountMenu');
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menu.classList.toggle('hidden');
+        });
+        document.addEventListener('click', () => menu.classList.add('hidden'), { once: true });
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const sb = await getSupabase();
+            if (sb) await sb.auth.signOut();
+            _currentUser = null;
+            renderAccountWidget();
+            showMessage('Você saiu', 'Sessão encerrada.');
+        });
+    }
+
+    // ---------- MODAL DE LOGIN/CADASTRO ----------
+    function injectAuthModal() {
+        if (document.getElementById('authModal')) return;
+        const html = `
+        <div id="authModal" class="fixed inset-0 z-[210] hidden items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="AppCore.closeAuthModal()"></div>
+            <div class="relative bg-white rounded-3xl w-full max-w-md p-7 shadow-2xl">
+                <button onclick="AppCore.closeAuthModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600">
+                    <i class="ph ph-x"></i>
+                </button>
+                <div class="text-center mb-5">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-2" style="background: linear-gradient(135deg, var(--color-primary, #0a2540), var(--color-secondary, #1a365d)); color: white;">
+                        <i class="ph-bold ph-user-circle text-2xl"></i>
+                    </div>
+                    <h3 id="authModalTitle" class="text-xl font-bold text-gray-800">Entre na sua conta</h3>
+                    <p class="text-sm text-gray-500" id="authModalSubtitle">Acesse seus pedidos, favoritos e ofertas exclusivas</p>
+                </div>
+                <div class="flex bg-gray-100 rounded-xl p-1 mb-5">
+                    <button id="authTabLogin" class="flex-1 py-2 px-4 rounded-lg font-medium text-sm bg-white text-primary shadow-sm">Entrar</button>
+                    <button id="authTabRegister" class="flex-1 py-2 px-4 rounded-lg font-medium text-sm text-gray-600">Cadastrar</button>
+                </div>
+
+                <form id="authLoginForm" class="space-y-3">
+                    <input type="email" id="authLoginEmail" required placeholder="Email" autocomplete="email" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none">
+                    <input type="password" id="authLoginPassword" required placeholder="Senha" autocomplete="current-password" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none">
+                    <button type="submit" class="w-full py-3 rounded-xl bg-primary text-white font-semibold hover:bg-secondary transition flex items-center justify-center gap-2">
+                        <span id="authLoginBtnLabel">Entrar</span>
+                    </button>
+                    <button type="button" id="authForgotBtn" class="w-full text-sm text-gray-500 hover:text-gray-800 transition">Esqueci minha senha</button>
+                    <p id="authLoginError" class="hidden text-sm text-rose-600 text-center bg-rose-50 rounded-lg py-2"></p>
+                </form>
+
+                <form id="authRegisterForm" class="space-y-3 hidden">
+                    <input type="text" id="authRegName" required placeholder="Nome completo" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none">
+                    <input type="email" id="authRegEmail" required placeholder="Email" autocomplete="email" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none">
+                    <input type="password" id="authRegPassword" required minlength="6" placeholder="Senha (mín. 6 caracteres)" autocomplete="new-password" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none">
+                    <input type="tel" id="authRegPhone" placeholder="Telefone (opcional)" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none">
+                    <button type="submit" class="w-full py-3 rounded-xl bg-primary text-white font-semibold hover:bg-secondary transition">
+                        <span id="authRegBtnLabel">Criar conta</span>
+                    </button>
+                    <p class="text-xs text-gray-400 text-center">Ao se cadastrar você concorda com nossos termos.</p>
+                    <p id="authRegError" class="hidden text-sm text-rose-600 text-center bg-rose-50 rounded-lg py-2"></p>
+                </form>
+
+                <form id="authForgotForm" class="space-y-3 hidden">
+                    <p class="text-sm text-gray-600 text-center">Vamos enviar um link para você redefinir a senha.</p>
+                    <input type="email" id="authForgotEmail" required placeholder="Seu email cadastrado" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none">
+                    <button type="submit" class="w-full py-3 rounded-xl bg-primary text-white font-semibold hover:bg-secondary transition">Enviar link</button>
+                    <button type="button" id="authBackToLogin" class="w-full text-sm text-gray-500 hover:text-gray-800">← Voltar ao login</button>
+                    <p id="authForgotMsg" class="hidden text-sm text-center rounded-lg py-2"></p>
+                </form>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', html);
+
+        // Tabs
+        document.getElementById('authTabLogin').addEventListener('click', () => switchAuthTab('login'));
+        document.getElementById('authTabRegister').addEventListener('click', () => switchAuthTab('register'));
+        document.getElementById('authForgotBtn').addEventListener('click', () => switchAuthTab('forgot'));
+        document.getElementById('authBackToLogin').addEventListener('click', () => switchAuthTab('login'));
+
+        // Login submit
+        document.getElementById('authLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const sb = await getSupabase();
+            const errEl = document.getElementById('authLoginError');
+            errEl.classList.add('hidden');
+            const label = document.getElementById('authLoginBtnLabel');
+            label.textContent = 'Entrando…';
+            try {
+                const { error } = await sb.auth.signInWithPassword({
+                    email: document.getElementById('authLoginEmail').value.trim(),
+                    password: document.getElementById('authLoginPassword').value,
+                });
+                if (error) throw error;
+                closeAuthModal();
+                showMessage('Bem-vindo!', 'Login realizado com sucesso.');
+            } catch (err) {
+                errEl.textContent = err.message || 'Erro ao entrar.';
+                errEl.classList.remove('hidden');
+            } finally {
+                label.textContent = 'Entrar';
+            }
+        });
+
+        // Register submit
+        document.getElementById('authRegisterForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const sb = await getSupabase();
+            const errEl = document.getElementById('authRegError');
+            errEl.classList.add('hidden');
+            const label = document.getElementById('authRegBtnLabel');
+            label.textContent = 'Criando conta…';
+            try {
+                const name = document.getElementById('authRegName').value.trim();
+                const phone = document.getElementById('authRegPhone').value.trim();
+                const { data, error } = await sb.auth.signUp({
+                    email: document.getElementById('authRegEmail').value.trim(),
+                    password: document.getElementById('authRegPassword').value,
+                    options: { data: { name, phone } },
+                });
+                if (error) throw error;
+                if (data.session) {
+                    closeAuthModal();
+                    showMessage('Conta criada!', 'Bem-vindo. Você já está logado.');
+                } else {
+                    // Confirmação de email habilitada — mostra mensagem
+                    errEl.className = 'text-sm text-emerald-700 text-center bg-emerald-50 rounded-lg py-2';
+                    errEl.textContent = 'Confira seu email para confirmar a conta.';
+                    errEl.classList.remove('hidden');
+                }
+            } catch (err) {
+                errEl.textContent = err.message || 'Erro ao criar conta.';
+                errEl.classList.remove('hidden');
+            } finally {
+                label.textContent = 'Criar conta';
+            }
+        });
+
+        // Forgot submit
+        document.getElementById('authForgotForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const sb = await getSupabase();
+            const msgEl = document.getElementById('authForgotMsg');
+            msgEl.classList.add('hidden');
+            try {
+                const { error } = await sb.auth.resetPasswordForEmail(
+                    document.getElementById('authForgotEmail').value.trim(),
+                    { redirectTo: `${window.location.origin}/set-password.html` }
+                );
+                if (error) throw error;
+                msgEl.className = 'text-sm text-center rounded-lg py-2 bg-emerald-50 text-emerald-700';
+                msgEl.textContent = 'Link enviado. Verifique seu email.';
+                msgEl.classList.remove('hidden');
+            } catch (err) {
+                msgEl.className = 'text-sm text-center rounded-lg py-2 bg-rose-50 text-rose-700';
+                msgEl.textContent = err.message || 'Erro ao enviar link.';
+                msgEl.classList.remove('hidden');
+            }
+        });
+    }
+
+    function switchAuthTab(tab) {
+        const loginForm = document.getElementById('authLoginForm');
+        const regForm = document.getElementById('authRegisterForm');
+        const forgotForm = document.getElementById('authForgotForm');
+        const tabLogin = document.getElementById('authTabLogin');
+        const tabReg = document.getElementById('authTabRegister');
+        loginForm.classList.add('hidden'); regForm.classList.add('hidden'); forgotForm.classList.add('hidden');
+        tabLogin.classList.remove('bg-white', 'text-primary', 'shadow-sm');
+        tabLogin.classList.add('text-gray-600');
+        tabReg.classList.remove('bg-white', 'text-primary', 'shadow-sm');
+        tabReg.classList.add('text-gray-600');
+        if (tab === 'login') {
+            loginForm.classList.remove('hidden');
+            tabLogin.classList.add('bg-white', 'text-primary', 'shadow-sm');
+            tabLogin.classList.remove('text-gray-600');
+        } else if (tab === 'register') {
+            regForm.classList.remove('hidden');
+            tabReg.classList.add('bg-white', 'text-primary', 'shadow-sm');
+            tabReg.classList.remove('text-gray-600');
+        } else {
+            forgotForm.classList.remove('hidden');
+        }
+    }
+
+    function openAuthModal(tab = 'login') {
+        injectAuthModal();
+        const m = document.getElementById('authModal');
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+        switchAuthTab(tab);
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeAuthModal() {
+        const m = document.getElementById('authModal');
+        if (!m) return;
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+        document.body.style.overflow = '';
+    }
+
     // ---------- INICIALIZAÇÃO ----------
     async function init() {
         injectGlobalModals();
@@ -623,6 +899,9 @@ document.head.appendChild(style);
         loadCart();
         updateCartUI();
         setupGlobalListeners();
+        // Auth: detecta sessão atual e renderiza widget
+        await refreshUser();
+        renderAccountWidget();
     }
 
     // API pública
@@ -644,6 +923,11 @@ document.head.appendChild(style);
         trackCategoryVisit,
         getCategoryHistory,
         renderProductCard,
+        openAuthModal,
+        closeAuthModal,
+        getSupabase,
+        refreshUser,
+        isAdminUser,
     };
 
     global.AppCore = AppCore;

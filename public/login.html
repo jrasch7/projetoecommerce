@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar · Elétrica Moro</title>
+    <script src="https://cdn.tailwindcss.com?3.4.1"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sc-bg: #0b1220;
+            --sc-surface: #ffffff;
+            --sc-primary: #0a2540;
+            --sc-accent: #e74c3c;
+            --sc-muted: #64748b;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background:
+              radial-gradient(circle at 0% 0%, rgba(231,76,60,0.12), transparent 40%),
+              radial-gradient(circle at 100% 100%, rgba(10,37,64,0.6), transparent 50%),
+              linear-gradient(135deg, #050a14 0%, #0b1220 50%, #11203a 100%);
+            min-height: 100vh;
+        }
+        .shell {
+            backdrop-filter: blur(14px);
+            background: rgba(255,255,255,0.97);
+            box-shadow: 0 30px 80px -30px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+        }
+        .input-field {
+            transition: all 0.2s ease;
+        }
+        .input-field:focus {
+            border-color: var(--sc-primary);
+            box-shadow: 0 0 0 3px rgba(10,37,64,0.08);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #0a2540, #11203a);
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 20px -8px rgba(10,37,64,0.5); }
+        .btn-primary:disabled { opacity: 0.5; transform: none; }
+        .brand-mark {
+            background: linear-gradient(135deg, #0a2540 0%, #1a365d 100%);
+            box-shadow: 0 8px 24px -8px rgba(10,37,64,0.6);
+        }
+        .sulcore-tag {
+            font-family: 'Inter', monospace;
+            letter-spacing: 0.18em;
+            font-weight: 700;
+            font-size: 0.65rem;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4 antialiased">
+
+    <div class="w-full max-w-md">
+        <!-- Brand -->
+        <div class="text-center mb-6">
+            <div class="brand-mark inline-flex w-14 h-14 rounded-2xl items-center justify-center mb-4">
+                <i class="ph-bold ph-shield-check text-white text-3xl"></i>
+            </div>
+            <h1 class="text-white text-2xl font-bold tracking-tight">Bem-vindo de volta</h1>
+            <p class="text-slate-400 text-sm mt-1">Elétrica Moro · Acesse sua conta</p>
+        </div>
+
+        <!-- Card -->
+        <div class="shell rounded-3xl p-8">
+            <div id="banner" class="hidden mb-5 rounded-xl p-3.5 text-sm border"></div>
+
+            <!-- LOGIN -->
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1.5">Email</label>
+                    <div class="relative">
+                        <i class="ph ph-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input id="email" type="email" required autocomplete="email"
+                               class="input-field w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 outline-none text-slate-800">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1.5">Senha</label>
+                    <div class="relative">
+                        <i class="ph ph-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input id="password" type="password" required autocomplete="current-password"
+                               class="input-field w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 outline-none text-slate-800">
+                    </div>
+                </div>
+                <button type="submit" id="loginBtn"
+                        class="btn-primary w-full py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2">
+                    <span>Entrar no painel</span>
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+                <p id="loginError" class="hidden text-sm text-rose-600 text-center bg-rose-50 rounded-lg py-2 px-3"></p>
+                <button type="button" id="forgotLink" class="block w-full text-sm text-slate-500 hover:text-slate-800 text-center pt-1 transition">
+                    Esqueci minha senha
+                </button>
+            </form>
+
+            <!-- FORGOT -->
+            <form id="forgotForm" class="hidden space-y-4">
+                <div class="text-center mb-2">
+                    <i class="ph ph-key text-3xl text-slate-400"></i>
+                    <p class="text-sm text-slate-600 mt-2">Vamos enviar um link de recuperação para seu email cadastrado.</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1.5">Email cadastrado</label>
+                    <div class="relative">
+                        <i class="ph ph-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input id="forgotEmail" type="email" required
+                               class="input-field w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 outline-none text-slate-800">
+                    </div>
+                </div>
+                <button type="submit" id="forgotBtn"
+                        class="btn-primary w-full py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2">
+                    <i class="ph-bold ph-paper-plane-tilt"></i>
+                    <span>Enviar link de recuperação</span>
+                </button>
+                <p id="forgotMsg" class="hidden text-sm text-center rounded-lg py-2 px-3"></p>
+                <button type="button" id="backToLogin" class="block w-full text-sm text-slate-500 hover:text-slate-800 text-center pt-1 transition">
+                    ← Voltar ao login
+                </button>
+            </form>
+        </div>
+
+        <!-- SulCore Footer -->
+        <div class="text-center mt-6 space-y-1">
+            <p class="text-slate-500 text-xs">Sistema desenvolvido por</p>
+            <a href="https://sulcore.com" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-white/90 hover:text-white transition">
+                <span class="brand-mark w-6 h-6 rounded-md flex items-center justify-center" style="box-shadow: none;">
+                    <i class="ph-bold ph-cube text-white text-xs"></i>
+                </span>
+                <span class="sulcore-tag">SULCORE</span>
+            </a>
+            <p class="text-slate-600 text-xs pt-1">© 2026 SulCore · Todos os direitos reservados</p>
+        </div>
+    </div>
+
+    <script src="/js/supabase-config.js"></script>
+    <script type="module">
+        import { adminAuth, supabase } from "/js/admin-auth.js";
+
+        const loginForm = document.getElementById("loginForm");
+        const forgotForm = document.getElementById("forgotForm");
+        const forgotLink = document.getElementById("forgotLink");
+        const backToLogin = document.getElementById("backToLogin");
+        const loginError = document.getElementById("loginError");
+        const forgotMsg = document.getElementById("forgotMsg");
+        const banner = document.getElementById("banner");
+
+        // Mensagens de query string
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("error") === "not_admin") {
+            banner.classList.remove("hidden");
+            banner.className = "mb-5 rounded-xl p-3.5 text-sm border bg-rose-50 border-rose-200 text-rose-700";
+            banner.innerHTML = '<i class="ph ph-warning-circle"></i> Sua conta não tem permissão de admin.';
+        } else if (params.get("logged_out") === "1") {
+            banner.classList.remove("hidden");
+            banner.className = "mb-5 rounded-xl p-3.5 text-sm border bg-emerald-50 border-emerald-200 text-emerald-700";
+            banner.innerHTML = '<i class="ph ph-check-circle"></i> Você saiu com segurança.';
+        }
+
+        // Já logado: redireciona conforme tipo (admin → painel; cliente → home)
+        (async () => {
+            const user = await adminAuth.getUser();
+            if (user) {
+                const isAdmin = adminAuth.isAdminUser(user);
+                const fallback = isAdmin ? "/admin.html" : "/";
+                window.location.href = params.get("redirect") || fallback;
+            }
+        })();
+
+        forgotLink.addEventListener("click", () => {
+            loginForm.classList.add("hidden");
+            forgotForm.classList.remove("hidden");
+        });
+        backToLogin.addEventListener("click", () => {
+            forgotForm.classList.add("hidden");
+            loginForm.classList.remove("hidden");
+        });
+
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            loginError.classList.add("hidden");
+            const btn = document.getElementById("loginBtn");
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> <span>Entrando…</span>';
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: document.getElementById("email").value.trim(),
+                    password: document.getElementById("password").value,
+                });
+                if (error) throw error;
+                const isAdmin = adminAuth.isAdminUser(data.user);
+                const fallback = isAdmin ? "/admin.html" : "/";
+                window.location.href = params.get("redirect") || fallback;
+            } catch (err) {
+                loginError.textContent = err.message || "Erro ao entrar.";
+                loginError.classList.remove("hidden");
+                btn.disabled = false;
+                btn.innerHTML = '<span>Entrar no painel</span><i class="ph-bold ph-arrow-right"></i>';
+            }
+        });
+
+        forgotForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            forgotMsg.classList.add("hidden");
+            const btn = document.getElementById("forgotBtn");
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> <span>Enviando…</span>';
+
+            try {
+                const email = document.getElementById("forgotEmail").value.trim();
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: `${window.location.origin}/set-password.html`,
+                });
+                if (error) throw error;
+                forgotMsg.className = "text-sm text-center rounded-lg py-2 px-3 bg-emerald-50 text-emerald-700 border border-emerald-200";
+                forgotMsg.innerHTML = '<i class="ph ph-check-circle"></i> Link enviado. Verifique seu email.';
+                forgotMsg.classList.remove("hidden");
+            } catch (err) {
+                forgotMsg.className = "text-sm text-center rounded-lg py-2 px-3 bg-rose-50 text-rose-700 border border-rose-200";
+                forgotMsg.textContent = err.message || "Erro ao enviar link.";
+                forgotMsg.classList.remove("hidden");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="ph-bold ph-paper-plane-tilt"></i> <span>Enviar link de recuperação</span>';
+            }
+        });
+    </script>
+</body>
+</html>

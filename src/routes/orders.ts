@@ -2,7 +2,7 @@ import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { CreateOrderSchema, UpdateOrderSchema } from "../schemas/order.schema.js";
-import { authenticateToken } from "./auth.js";
+import { requireAuth, type AuthRequest } from "../middleware/requireAuth.js";
 import { requireAdmin } from "../middleware/requireAdmin.js";
 
 const router = Router();
@@ -83,24 +83,18 @@ router.get("/track", asyncHandler(async (req, res) => {
   });
 }));
 
-// Get customer's orders (requires authentication)
-router.get("/my-account", authenticateToken, asyncHandler(async (req: any, res) => {
+// Get customer's orders (requires authentication via Supabase Auth)
+router.get("/my-account", requireAuth, asyncHandler(async (req: AuthRequest, res) => {
+  const user = req.authUser!;
   const orders = await prisma.order.findMany({
-    where: {
-      customerId: req.customer.customerId
-    },
+    where: { customerId: user.id },
     orderBy: { createdAt: "desc" },
     include: {
       customerRef: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        }
-      }
-    }
+        select: { id: true, name: true, email: true },
+      },
+    },
   });
-  
   res.json(orders);
 }));
 

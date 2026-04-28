@@ -75,11 +75,12 @@ model Order {
   customerRef    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
 }
 
+// Customer.id é igual ao auth.users.id do Supabase Auth (1:1).
+// Senha, recovery e login são gerenciados pelo Supabase. Aqui só o perfil.
 model Customer {
-  id        String   @id @default(uuid())
-  name      String
+  id        String   @id  // = Supabase auth.users.id (UUID)
+  name      String?
   email     String   @unique
-  password  String
   cpf       String?  @unique
   phone     String?
   address   String?

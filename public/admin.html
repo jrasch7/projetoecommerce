@@ -129,9 +129,9 @@
           const url = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.url) || "";
           const m = url.match(/https:\/\/([^.]+)/);
           if (!m || !localStorage.getItem(`sb-${m[1]}-auth-token`)) {
-            window.location.replace("/admin-login.html");
+            window.location.replace("/login.html");
           }
-        } catch (e) { window.location.replace("/admin-login.html"); }
+        } catch (e) { window.location.replace("/login.html"); }
       })();
     </script>
     <script type="module">

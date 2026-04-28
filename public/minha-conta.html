@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Conta · Elétrica Moro</title>
+    <script src="https://cdn.tailwindcss.com?3.4.1"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="js/theme-config.js"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { primary: 'var(--color-primary)', secondary: 'var(--color-secondary)', accent: 'var(--color-accent)' }, fontFamily: { sans: 'var(--font-family)' } } }
+        };
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-btn.active { background-color: var(--color-primary); color: white; }
+        .tab-btn:not(.active):hover { background-color: rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+    <div id="global-header"></div>
+
+    <main class="flex-grow container mx-auto px-4 md:px-6 py-8 max-w-5xl">
+        <!-- Loading -->
+        <div id="loadingState" class="text-center py-20">
+            <i class="ph ph-spinner animate-spin text-5xl text-primary"></i>
+            <p class="text-gray-500 mt-3">Carregando…</p>
+        </div>
+
+        <!-- Não logado -->
+        <div id="unauthedState" class="hidden text-center py-20">
+            <i class="ph ph-user-circle text-6xl text-gray-300"></i>
+            <h2 class="text-2xl font-bold text-gray-800 mt-4">Você precisa estar logado</h2>
+            <p class="text-gray-500 mt-2">Entre na sua conta para acessar pedidos, favoritos e dados pessoais.</p>
+            <button id="goLoginBtn" class="mt-6 px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-secondary transition">Entrar / Cadastrar</button>
+        </div>
+
+        <!-- Logado -->
+        <div id="authedState" class="hidden">
+            <!-- Cabeçalho da conta -->
+            <div class="bg-white rounded-2xl border border-gray-200 p-6 mb-6 shadow-sm flex items-center gap-4">
+                <div id="userInitial" class="w-14 h-14 rounded-full bg-accent text-white text-xl font-bold flex items-center justify-center">?</div>
+                <div class="flex-1 min-w-0">
+                    <h1 class="text-xl font-bold text-gray-800 truncate" id="userName">Minha Conta</h1>
+                    <p class="text-sm text-gray-500 truncate" id="userEmail">—</p>
+                </div>
+                <button id="logoutBtn2" class="text-sm text-rose-600 hover:bg-rose-50 px-4 py-2 rounded-xl transition flex items-center gap-2">
+                    <i class="ph ph-sign-out"></i> Sair
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex flex-wrap gap-2 mb-5 border-b border-gray-200 pb-2">
+                <button data-tab="pedidos" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2">
+                    <i class="ph ph-package"></i> Meus pedidos
+                </button>
+                <button data-tab="interesses" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2">
+                    <i class="ph ph-heart"></i> Meus interesses
+                </button>
+                <button data-tab="perfil" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2">
+                    <i class="ph ph-user-gear"></i> Meus dados
+                </button>
+            </div>
+
+            <!-- PANE: Pedidos -->
+            <div id="paneOrders" class="tab-pane bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                <h2 class="text-lg font-bold text-gray-800 mb-4">Histórico de pedidos</h2>
+                <div id="ordersList" class="space-y-3">
+                    <p class="text-gray-400 text-sm">Carregando pedidos…</p>
+                </div>
+            </div>
+
+            <!-- PANE: Interesses -->
+            <div id="paneWishlist" class="tab-pane hidden bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                <h2 class="text-lg font-bold text-gray-800 mb-4">Produtos favoritos</h2>
+                <div class="text-center py-10 text-gray-400">
+                    <i class="ph ph-heart text-5xl text-gray-300"></i>
+                    <p class="mt-3">Em breve você poderá salvar produtos favoritos aqui.</p>
+                </div>
+            </div>
+
+            <!-- PANE: Perfil -->
+            <div id="paneProfile" class="tab-pane hidden bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                <h2 class="text-lg font-bold text-gray-800 mb-4">Dados pessoais</h2>
+                <form id="profileForm" class="space-y-4 max-w-lg">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">Nome</label>
+                        <input id="profName" type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">CPF</label>
+                        <input id="profCpf" type="text" placeholder="000.000.000-00" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">Telefone</label>
+                        <input id="profPhone" type="tel" placeholder="(00) 00000-0000" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">Endereço</label>
+                        <textarea id="profAddress" rows="2" placeholder="Rua, número, bairro, cidade" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none"></textarea>
+                    </div>
+                    <button type="submit" class="px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-secondary transition flex items-center gap-2">
+                        <i class="ph-bold ph-floppy-disk"></i> Salvar alterações
+                    </button>
+                    <p id="profileMsg" class="hidden text-sm rounded-lg py-2 px-3"></p>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <div id="global-footer"></div>
+
+    <script src="js/main-components.js"></script>
+    <script type="module">
+        const params = new URLSearchParams(window.location.search);
+
+        async function start() {
+            // Aguarda AppCore disponibilizar Supabase
+            const tryGet = async () => window.AppCore && window.AppCore.getSupabase ? window.AppCore.getSupabase() : null;
+            let sb = await tryGet();
+            for (let i = 0; i < 20 && !sb; i++) { await new Promise(r => setTimeout(r, 100)); sb = await tryGet(); }
+            if (!sb) { document.getElementById('loadingState').textContent = 'Erro ao carregar.'; return; }
+
+            const { data: { user } } = await sb.auth.getUser();
+            if (!user) {
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('unauthedState').classList.remove('hidden');
+                document.getElementById('goLoginBtn').addEventListener('click', () => window.AppCore.openAuthModal('login'));
+                return;
+            }
+
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('authedState').classList.remove('hidden');
+
+            // Header
+            document.getElementById('userInitial').textContent = (user.email || '?')[0].toUpperCase();
+            document.getElementById('userEmail').textContent = user.email || '';
+            document.getElementById('userName').textContent = user.user_metadata?.name || 'Bem-vindo';
+
+            // Tabs
+            const initialTab = params.get('tab') || 'pedidos';
+            const panes = {
+                pedidos: document.getElementById('paneOrders'),
+                interesses: document.getElementById('paneWishlist'),
+                perfil: document.getElementById('paneProfile'),
+            };
+            function activate(tab) {
+                Object.entries(panes).forEach(([k, p]) => p.classList.toggle('hidden', k !== tab));
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === tab));
+                if (tab === 'pedidos') loadOrders();
+                if (tab === 'perfil') loadProfile();
+            }
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.addEventListener('click', () => activate(b.getAttribute('data-tab')));
+            });
+            activate(initialTab);
+
+            // Logout
+            document.getElementById('logoutBtn2').addEventListener('click', async () => {
+                await sb.auth.signOut();
+                window.location.href = '/';
+            });
+
+            // ----- Helpers -----
+            async function authFetch(url, options = {}) {
+                const { data: { session } } = await sb.auth.getSession();
+                const headers = new Headers(options.headers || {});
+                if (session?.access_token) headers.set('Authorization', `Bearer ${session.access_token}`);
+                return fetch(url, { ...options, headers });
+            }
+
+            // ----- Orders -----
+            async function loadOrders() {
+                const list = document.getElementById('ordersList');
+                list.innerHTML = '<p class="text-gray-400 text-sm">Carregando pedidos…</p>';
+                try {
+                    const res = await authFetch('/api/customer/orders');
+                    if (!res.ok) throw new Error('Falha ao carregar pedidos');
+                    const orders = await res.json();
+                    if (!orders.length) {
+                        list.innerHTML = `
+                            <div class="text-center py-10 text-gray-400">
+                                <i class="ph ph-package text-5xl text-gray-300"></i>
+                                <p class="mt-3">Você ainda não fez pedidos.</p>
+                                <a href="/" class="inline-block mt-4 px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-secondary transition">Explorar produtos</a>
+                            </div>`;
+                        return;
+                    }
+                    list.innerHTML = orders.map(o => {
+                        const date = new Date(o.createdAt).toLocaleString('pt-BR');
+                        const status = o.status || 'Pendente';
+                        const statusColor = status === 'Pago' ? 'bg-emerald-100 text-emerald-700' : status === 'Enviado' ? 'bg-sky-100 text-sky-700' : 'bg-amber-100 text-amber-700';
+                        return `
+                            <div class="border border-gray-200 rounded-xl p-4 hover:shadow-sm transition">
+                                <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+                                    <span class="text-xs text-gray-500">Pedido #${o.id.slice(0, 8)}</span>
+                                    <span class="text-xs px-2 py-1 rounded-full font-medium ${statusColor}">${status}</span>
+                                </div>
+                                <p class="text-sm text-gray-500">${date}</p>
+                                <p class="font-semibold text-gray-800 mt-1">R$ ${Number(o.total).toFixed(2).replace('.', ',')}</p>
+                            </div>
+                        `;
+                    }).join('');
+                } catch (err) {
+                    list.innerHTML = `<p class="text-rose-500 text-sm">${err.message}</p>`;
+                }
+            }
+
+            // ----- Profile -----
+            async function loadProfile() {
+                try {
+                    const res = await authFetch('/api/customer/me');
+                    if (!res.ok) return;
+                    const c = await res.json();
+                    document.getElementById('profName').value = c.name || '';
+                    document.getElementById('profCpf').value = c.cpf || '';
+                    document.getElementById('profPhone').value = c.phone || '';
+                    document.getElementById('profAddress').value = c.address || '';
+                } catch (e) { console.error(e); }
+            }
+
+            document.getElementById('profileForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const msg = document.getElementById('profileMsg');
+                msg.classList.add('hidden');
+                try {
+                    const res = await authFetch('/api/customer/me', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: document.getElementById('profName').value,
+                            cpf: document.getElementById('profCpf').value || null,
+                            phone: document.getElementById('profPhone').value || null,
+                            address: document.getElementById('profAddress').value || null,
+                        }),
+                    });
+                    if (!res.ok) throw new Error('Falha ao salvar');
+                    msg.className = 'text-sm rounded-lg py-2 px-3 bg-emerald-50 text-emerald-700';
+                    msg.textContent = 'Dados salvos com sucesso.';
+                    msg.classList.remove('hidden');
+                } catch (err) {
+                    msg.className = 'text-sm rounded-lg py-2 px-3 bg-rose-50 text-rose-700';
+                    msg.textContent = err.message;
+                    msg.classList.remove('hidden');
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', start);
+        } else {
+            start();
+        }
+    </script>
+</body>
+</html>

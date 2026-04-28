@@ -27,7 +27,7 @@ router.post("/invite", requireAdmin, asyncHandler(async (req, res) => {
   const { email } = InviteSchema.parse(req.body);
 
   const origin = (req.headers.origin as string) || `${req.protocol}://${req.get("host")}`;
-  const redirectTo = `${origin}/admin-set-password.html`;
+  const redirectTo = `${origin}/set-password.html`;
 
   const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
     data: { is_admin: true },
