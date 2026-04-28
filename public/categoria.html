@@ -316,11 +316,12 @@
                     // Load all products
                     const prodRes = await fetch('/api/products');
                     if (!prodRes.ok) throw new Error('Erro ao carregar produtos');
-                    const products = await prodRes.json();
-                    
+                    const rawAll = await prodRes.json();
+                    const products = Array.isArray(rawAll) ? rawAll : (rawAll.data || []);
+
                     // Store products for filtering
                     allProducts = products;
-                    
+
                     loadingEl.classList.add('hidden');
 
                     if (!products || products.length === 0) {
@@ -368,8 +369,9 @@
 
                     const prodRes = await fetch(`/api/products?subCategoryId=${categoryId}`);
                     if (!prodRes.ok) throw new Error('Erro ao carregar produtos');
-                    const products = await prodRes.json();
-                    
+                    const rawSub = await prodRes.json();
+                    const products = Array.isArray(rawSub) ? rawSub : (rawSub.data || []);
+
                     // Store products for filtering
                     allProducts = products;
                     

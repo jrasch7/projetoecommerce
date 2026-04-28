@@ -1302,7 +1302,8 @@
         if (cancelEditModalBtn) cancelEditModalBtn.addEventListener('click', closeEditModal);
         if (editModal) editModal.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
 
-        // Helper fetch com fallback
+        // Helper fetch com fallback. Desembrulha automaticamente respostas
+        // paginadas no formato { data, total, page, limit, totalPages }.
         async function fetchJSON(url, options = {}) {
             try {
                 const res = await fetch(url, options);
@@ -1315,7 +1316,11 @@
                     throw new Error(errorMsg);
                 }
                 const text = await res.text();
-                return text ? JSON.parse(text) : {};
+                const data = text ? JSON.parse(text) : {};
+                if (data && typeof data === 'object' && Array.isArray(data.data) && 'totalPages' in data) {
+                    return data.data;
+                }
+                return data;
             } catch (err) {
                 console.warn(`Falha ao buscar ${url}:`, err.message);
                 throw err;
@@ -2039,13 +2044,15 @@
         // Update preview iframe with current settings
         function updatePreview() {
             const frame = document.getElementById('previewFrame');
-            const frameDoc = frame.contentDocument || frame.contentWindow.document;
-            
-            const primaryColor = document.getElementById('primaryColor').value;
-            const secondaryColor = document.getElementById('secondaryColor').value;
-            const accentColor = document.getElementById('accentColor').value;
-            const storeName = document.getElementById('storeName').value;
-            const fontFamily = document.getElementById('fontFamily').value;
+            if (!frame) return;
+            const frameDoc = frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
+            if (!frameDoc || !frameDoc.head) return;
+
+            const val = (id, fallback = '') => document.getElementById(id)?.value ?? fallback;
+            const primaryColor = val('primaryColor', '#0a2540');
+            const secondaryColor = val('secondaryColor', '#1a365d');
+            const accentColor = val('accentColor', '#e74c3c');
+            const fontFamily = val('fontFamily', 'Inter');
             
             // Inject custom styles into iframe
             const styleId = 'custom-preview-styles';

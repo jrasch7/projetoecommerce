@@ -367,7 +367,8 @@
                 // Fetch product
                 const prodRes = await fetch(`/api/products`);
                 if (!prodRes.ok) throw new Error('Erro ao carregar produto');
-                const allProducts = await prodRes.json();
+                const raw = await prodRes.json();
+                const allProducts = Array.isArray(raw) ? raw : (raw.data || []);
                 const product = allProducts.find(p => p.id === productId);
 
                 if (!product) {
@@ -823,10 +824,11 @@
                 }
 
                 const prodRes = await fetch('/api/products');
-                const allProducts = await prodRes.json();
-                
+                const rawComp = await prodRes.json();
+                const allProducts = Array.isArray(rawComp) ? rawComp : (rawComp.data || []);
+
                 // Find complementary products (same category, different product)
-                const complementary = allProducts.filter(p => 
+                const complementary = allProducts.filter(p =>
                     p.id !== product.id && 
                     p.subCategory?.categoryId === categoryId
                 );
