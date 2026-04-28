@@ -283,7 +283,13 @@
                     </div>
                     <div class="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-white/40 text-[11px]">
                         <p>${footerText}</p>
-                        <div class="flex gap-6"><span>Desenvolvido com ❤️</span></div>
+                        <a href="https://sulcore.com" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 hover:text-white/80 transition" title="Sistema desenvolvido por SulCore">
+                            <span class="w-4 h-4 rounded flex items-center justify-center bg-white/10">
+                                <i class="ph-bold ph-cube text-[8px]"></i>
+                            </span>
+                            <span style="font-family: 'Inter', monospace; letter-spacing: 0.18em; font-size: 0.6rem;">SULCORE</span>
+                            <span class="text-white/30">· © ${year}</span>
+                        </a>
                     </div>
                 </div>
             </footer>

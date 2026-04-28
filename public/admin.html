@@ -389,20 +389,54 @@
 
         <!-- TEAM (gestão de admins / convites) -->
         <div id="teamPanel" class="tab-pane hidden">
-            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                            <i class="ph ph-users-three text-primary"></i> Equipe administrativa
-                        </h2>
-                        <p class="text-sm text-slate-500 mt-1">Convide colaboradores por email. Eles recebem um link para criar a senha.</p>
+            <div class="grid lg:grid-cols-3 gap-6">
+                <!-- Coluna principal: lista -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between flex-wrap gap-3">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                    <i class="ph ph-users-three text-primary"></i> Equipe administrativa
+                                </h2>
+                                <p class="text-sm text-slate-500 mt-0.5">Pessoas com acesso ao painel</p>
+                            </div>
+                            <button id="openInviteBtn" type="button" class="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-slate-800 transition font-medium shadow-sm flex items-center gap-2">
+                                <i class="ph-bold ph-user-plus"></i> Convidar pessoa
+                            </button>
+                        </div>
+                        <div id="teamList" class="divide-y divide-slate-100">
+                            <p class="text-slate-400 text-sm p-6">Carregando…</p>
+                        </div>
                     </div>
-                    <button id="openInviteBtn" type="button" class="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-slate-800 transition font-medium shadow-sm flex items-center gap-2">
-                        <i class="ph ph-user-plus"></i> Convidar
-                    </button>
                 </div>
-                <div id="teamList" class="space-y-2">
-                    <p class="text-slate-400 text-sm">Carregando…</p>
+
+                <!-- Coluna lateral: como funciona -->
+                <div class="space-y-4">
+                    <div class="bg-gradient-to-br from-slate-50 to-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="ph ph-info-fill text-primary text-xl"></i>
+                            <h3 class="font-semibold text-slate-800">Como funciona</h3>
+                        </div>
+                        <ol class="space-y-3 text-sm text-slate-600">
+                            <li class="flex gap-3">
+                                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center" style="background-color:#e6efff;color:#0a2540;">1</span>
+                                <span>Você envia um convite com o email do colaborador.</span>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center" style="background-color:#e6efff;color:#0a2540;">2</span>
+                                <span>O colaborador recebe um link por email para criar a senha.</span>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center" style="background-color:#e6efff;color:#0a2540;">3</span>
+                                <span>Pronto: ele entra no painel com mesmo nível de acesso que você.</span>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 flex gap-3">
+                        <i class="ph ph-warning-circle text-xl flex-shrink-0 mt-0.5"></i>
+                        <p>Todo admin tem acesso total. Convide apenas pessoas de confiança.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -410,20 +444,29 @@
         <!-- Modal de convite -->
         <div id="inviteModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
             <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
-                <h3 class="text-xl font-bold text-primary mb-4 flex items-center gap-2">
-                    <i class="ph ph-user-plus text-accent"></i> Convidar colaborador
-                </h3>
-                <form id="inviteForm">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                        <input id="inviteEmail" type="email" required placeholder="colaborador@empresa.com"
-                               class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none">
+                <div class="flex items-center gap-3 mb-1">
+                    <div class="w-11 h-11 rounded-xl flex items-center justify-center text-primary" style="background-color:#e6efff;color:#0a2540;">
+                        <i class="ph-bold ph-user-plus text-xl"></i>
                     </div>
-                    <p id="inviteMsg" class="hidden text-sm mb-3"></p>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">Convidar pessoa</h3>
+                        <p class="text-xs text-slate-500">Acesso completo ao painel</p>
+                    </div>
+                </div>
+                <form id="inviteForm" class="mt-5">
+                    <div class="mb-4">
+                        <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1.5">Email do colaborador</label>
+                        <div class="relative">
+                            <i class="ph ph-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input id="inviteEmail" type="email" required placeholder="pessoa@empresa.com"
+                                   class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition">
+                        </div>
+                    </div>
+                    <p id="inviteMsg" class="hidden text-sm mb-3 rounded-lg py-2 px-3"></p>
                     <div class="flex justify-end gap-3">
                         <button type="button" id="closeInviteModal" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition font-medium">Cancelar</button>
-                        <button type="submit" id="inviteSubmit" class="px-5 py-2 bg-primary text-white rounded-xl hover:bg-slate-800 transition font-medium shadow-sm flex items-center gap-2">
-                            <i class="ph ph-paper-plane-tilt"></i> Enviar convite
+                        <button type="submit" id="inviteSubmit" class="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-slate-800 transition font-medium shadow-sm flex items-center gap-2">
+                            <i class="ph-bold ph-paper-plane-tilt"></i> Enviar convite
                         </button>
                     </div>
                 </form>
@@ -901,6 +944,24 @@
             </div>
         </div>
     </main>
+
+    <!-- ===== FOOTER SULCORE (visível em todas as abas administrativas) ===== -->
+    <footer class="border-t border-slate-200 bg-white mt-auto">
+        <div class="container mx-auto px-4 md:px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+            <div class="flex items-center gap-2">
+                <span>Sistema desenvolvido por</span>
+                <a href="https://sulcore.com" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 font-bold text-slate-700 hover:text-primary transition">
+                    <span class="w-5 h-5 rounded-md flex items-center justify-center text-white" style="background: linear-gradient(135deg, #0a2540, #1a365d);">
+                        <i class="ph-bold ph-cube text-[10px]"></i>
+                    </span>
+                    <span style="font-family: 'Inter', monospace; letter-spacing: 0.18em; font-size: 0.7rem;">SULCORE</span>
+                </a>
+            </div>
+            <div class="flex items-center gap-3">
+                <span>© 2026 SulCore · Todos os direitos reservados</span>
+            </div>
+        </div>
+    </footer>
 </div>
 
 <!-- ===== MODAL DE CROP DE FOTO (UNIFICADO) ===== -->
@@ -2016,13 +2077,14 @@
 
         // Abas
         function initTabs() {
-            const panels = { 
-                dashboard: document.getElementById('dashboardPanel'), 
-                products: document.getElementById('productsPanel'), 
-                categories: document.getElementById('categoriesPanel'), 
+            const panels = {
+                dashboard: document.getElementById('dashboardPanel'),
+                products: document.getElementById('productsPanel'),
+                categories: document.getElementById('categoriesPanel'),
                 orders: document.getElementById('ordersPanel'),
                 customizable: document.getElementById('customizablePanel'),
-                payments: document.getElementById('paymentsPanel')
+                payments: document.getElementById('paymentsPanel'),
+                team: document.getElementById('teamPanel'),
             };
             
             document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -2054,6 +2116,7 @@
                     if(tab === 'orders') loadOrders();
                     if(tab === 'customizable') loadConfig();
                     if(tab === 'payments') loadPaymentConfig();
+                    if(tab === 'team' && typeof loadTeam === 'function') loadTeam();
                 });
             });
             
@@ -2677,37 +2740,61 @@ if (paymentConfigForm) {
         // ========== EQUIPE (gestão de admins) ==========
         const ADMIN_API = `${API_BASE}/admin`;
 
+        function timeAgo(date) {
+            if (!date) return 'Nunca acessou';
+            const d = new Date(date);
+            const diff = (Date.now() - d.getTime()) / 1000;
+            if (diff < 60) return 'agora há pouco';
+            if (diff < 3600) return `há ${Math.floor(diff/60)} min`;
+            if (diff < 86400) return `há ${Math.floor(diff/3600)} h`;
+            if (diff < 604800) return `há ${Math.floor(diff/86400)} dias`;
+            return d.toLocaleDateString('pt-BR');
+        }
+
         async function loadTeam() {
             const list = document.getElementById('teamList');
             if (!list) return;
-            list.innerHTML = '<p class="text-slate-400 text-sm">Carregando…</p>';
+            list.innerHTML = '<p class="text-slate-400 text-sm p-6">Carregando…</p>';
             try {
                 const res = await fetch(`${ADMIN_API}/users`);
                 if (!res.ok) throw new Error('Falha ao carregar equipe');
                 const users = await res.json();
                 if (!users.length) {
-                    list.innerHTML = '<p class="text-slate-400 text-sm">Nenhum admin cadastrado.</p>';
+                    list.innerHTML = `
+                        <div class="p-10 text-center">
+                            <i class="ph ph-users-three text-5xl text-slate-300"></i>
+                            <p class="text-slate-500 mt-3">Nenhum administrador cadastrado.</p>
+                        </div>`;
                     return;
                 }
                 const meRes = await fetch(`${ADMIN_API}/me`);
                 const me = meRes.ok ? await meRes.json() : null;
-                list.innerHTML = users.map(u => {
+                const initials = (s) => (s || '?').split(/[@.\s]/)[0].slice(0, 2).toUpperCase();
+                const colors = ['bg-rose-100 text-rose-700', 'bg-amber-100 text-amber-700', 'bg-emerald-100 text-emerald-700', 'bg-sky-100 text-sky-700', 'bg-violet-100 text-violet-700'];
+                list.innerHTML = users.map((u, i) => {
                     const isSelf = me && u.id === me.id;
-                    const lastSignIn = u.lastSignInAt
-                        ? new Date(u.lastSignInAt).toLocaleString('pt-BR')
-                        : 'Nunca acessou';
+                    const lastSignIn = timeAgo(u.lastSignInAt);
+                    const created = u.createdAt ? new Date(u.createdAt).toLocaleDateString('pt-BR') : '—';
+                    const color = colors[i % colors.length];
                     return `
-                        <div class="flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0" style="background-color:#e6efff;color:#0a2540;">
-                                    <i class="ph ph-user"></i>
+                        <div class="flex items-center justify-between gap-3 px-6 py-4 hover:bg-slate-50 transition">
+                            <div class="flex items-center gap-4 min-w-0">
+                                <div class="w-11 h-11 rounded-full ${color} flex items-center justify-center font-bold text-sm flex-shrink-0">
+                                    ${initials(u.email)}
                                 </div>
                                 <div class="min-w-0">
-                                    <p class="font-medium text-slate-800 truncate">${escapeHtml(u.email)}${isSelf ? ' <span class="text-xs text-slate-400">(você)</span>' : ''}</p>
-                                    <p class="text-xs text-slate-500">Último acesso: ${lastSignIn}</p>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <p class="font-semibold text-slate-800 truncate">${escapeHtml(u.email)}</p>
+                                        ${isSelf ? '<span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">você</span>' : ''}
+                                    </div>
+                                    <p class="text-xs text-slate-500 mt-0.5">
+                                        <span class="inline-flex items-center gap-1"><i class="ph ph-clock"></i> ${lastSignIn}</span>
+                                        <span class="mx-2 text-slate-300">·</span>
+                                        <span class="inline-flex items-center gap-1"><i class="ph ph-calendar"></i> desde ${created}</span>
+                                    </p>
                                 </div>
                             </div>
-                            ${isSelf ? '' : `<button data-remove-admin="${u.id}" class="text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-1"><i class="ph ph-trash"></i> Remover</button>`}
+                            ${isSelf ? '' : `<button data-remove-admin="${u.id}" class="text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-lg text-sm font-medium transition flex items-center gap-1.5" title="Revogar acesso"><i class="ph ph-sign-out"></i> Revogar</button>`}
                         </div>
                     `;
                 }).join('');
@@ -2715,7 +2802,7 @@ if (paymentConfigForm) {
                     btn.addEventListener('click', () => removeAdmin(btn.getAttribute('data-remove-admin')));
                 });
             } catch (err) {
-                list.innerHTML = `<p class="text-rose-500 text-sm">Erro: ${escapeHtml(err.message)}</p>`;
+                list.innerHTML = `<p class="text-rose-500 text-sm p-6">Erro: ${escapeHtml(err.message)}</p>`;
             }
         }
 
