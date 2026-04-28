@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma.js";
 import { upload } from "../middleware/upload.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { uploadFile, deleteFileByUrl } from "../lib/storage.js";
+import { requireAdmin } from "../middleware/requireAdmin.js";
 import { CreateProductSchema, UpdateProductSchema } from "../schemas/product.schema.js";
 
 const router = Router();
@@ -59,7 +60,7 @@ router.get("/", asyncHandler(async (req, res) => {
   res.json({ data: productsWithOrderCount, total, page: pageNum, limit: limitNum, totalPages: Math.ceil(total / limitNum) });
 }));
 
-router.post("/", upload.array("images", 5), asyncHandler(async (req, res) => {
+router.post("/", requireAdmin, upload.array("images", 5), asyncHandler(async (req, res) => {
   const parsed = CreateProductSchema.parse(req.body);
   const files = (req.files as Express.Multer.File[]) ?? [];
   const imageUrls = await Promise.all(files.map((f) => uploadFile(f)));
@@ -81,7 +82,7 @@ router.post("/", upload.array("images", 5), asyncHandler(async (req, res) => {
   res.status(201).json(product);
 }));
 
-router.put("/:id", upload.array("images", 5), asyncHandler(async (req, res) => {
+router.put("/:id", requireAdmin, upload.array("images", 5), asyncHandler(async (req, res) => {
   const id = req.params["id"] as string;
   const parsed = UpdateProductSchema.parse(req.body);
   const files = (req.files as Express.Multer.File[]) ?? [];
@@ -112,7 +113,7 @@ router.put("/:id", upload.array("images", 5), asyncHandler(async (req, res) => {
   res.json(product);
 }));
 
-router.delete("/:id", asyncHandler(async (req, res) => {
+router.delete("/:id", requireAdmin, asyncHandler(async (req, res) => {
   const id = req.params["id"] as string;
   const previous = await prisma.product.findUnique({ where: { id }, select: { images: true } });
   await prisma.product.delete({ where: { id } });

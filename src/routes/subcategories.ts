@@ -2,6 +2,7 @@ import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { NotFoundError } from "../lib/errors.js";
+import { requireAdmin } from "../middleware/requireAdmin.js";
 import { CreateSubCategorySchema, UpdateSubCategorySchema } from "../schemas/subcategory.schema.js";
 
 const router = Router();
@@ -21,13 +22,13 @@ router.get("/:id", asyncHandler(async (req, res) => {
   res.json(subcategory);
 }));
 
-router.post("/", asyncHandler(async (req, res) => {
+router.post("/", requireAdmin, asyncHandler(async (req, res) => {
   const { name, categoryId } = CreateSubCategorySchema.parse(req.body);
   const subCategory = await prisma.subCategory.create({ data: { name, categoryId } });
   res.status(201).json(subCategory);
 }));
 
-router.put("/:id", asyncHandler(async (req, res) => {
+router.put("/:id", requireAdmin, asyncHandler(async (req, res) => {
   const id = req.params["id"] as string;
   const { name, categoryId } = UpdateSubCategorySchema.parse(req.body);
   const data: { name?: string; categoryId?: string } = {};
@@ -37,7 +38,7 @@ router.put("/:id", asyncHandler(async (req, res) => {
   res.json(subCategory);
 }));
 
-router.delete("/:id", asyncHandler(async (req, res) => {
+router.delete("/:id", requireAdmin, asyncHandler(async (req, res) => {
   const id = req.params["id"] as string;
   await prisma.subCategory.delete({ where: { id } });
   res.status(204).send();

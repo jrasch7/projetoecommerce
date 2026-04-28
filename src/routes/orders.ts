@@ -3,10 +3,11 @@ import { prisma } from "../lib/prisma.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { CreateOrderSchema, UpdateOrderSchema } from "../schemas/order.schema.js";
 import { authenticateToken } from "./auth.js";
+import { requireAdmin } from "../middleware/requireAdmin.js";
 
 const router = Router();
 
-router.get("/", asyncHandler(async (req, res) => {
+router.get("/", requireAdmin, asyncHandler(async (req, res) => {
   const pageNum = Math.max(1, parseInt(String(req.query["page"] ?? "1")));
   const limitNum = Math.min(100, Math.max(1, parseInt(String(req.query["limit"] ?? "20"))));
   const skip = (pageNum - 1) * limitNum;
@@ -176,7 +177,7 @@ router.post("/", asyncHandler(async (req, res) => {
   res.status(201).json(order);
 }));
 
-router.put("/:id", asyncHandler(async (req, res) => {
+router.put("/:id", requireAdmin, asyncHandler(async (req, res) => {
   const id = req.params["id"] as string;
   const { status, payment } = UpdateOrderSchema.parse(req.body);
   const data: { status?: string; payment?: string } = {};
@@ -186,7 +187,7 @@ router.put("/:id", asyncHandler(async (req, res) => {
   res.json(order);
 }));
 
-router.delete("/:id", asyncHandler(async (req, res) => {
+router.delete("/:id", requireAdmin, asyncHandler(async (req, res) => {
   const id = req.params["id"] as string;
   await prisma.order.delete({ where: { id } });
   res.status(204).send();

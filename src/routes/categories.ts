@@ -4,6 +4,7 @@ import { upload } from "../middleware/upload.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { NotFoundError } from "../lib/errors.js";
 import { uploadFile, deleteFileByUrl } from "../lib/storage.js";
+import { requireAdmin } from "../middleware/requireAdmin.js";
 import { CreateCategorySchema, UpdateCategorySchema } from "../schemas/category.schema.js";
 
 const router = Router();
@@ -31,14 +32,14 @@ router.get("/:id/subcategories", asyncHandler(async (req, res) => {
   res.json(subcategories);
 }));
 
-router.post("/", upload.single("photo"), asyncHandler(async (req, res) => {
+router.post("/", requireAdmin, upload.single("photo"), asyncHandler(async (req, res) => {
   const { name } = CreateCategorySchema.parse(req.body);
   const imageUrl = req.file ? await uploadFile(req.file) : null;
   const category = await prisma.category.create({ data: { name, imageUrl } });
   res.status(201).json(category);
 }));
 
-router.put("/:id", upload.single("photo"), asyncHandler(async (req, res) => {
+router.put("/:id", requireAdmin, upload.single("photo"), asyncHandler(async (req, res) => {
   const id = req.params["id"] as string;
   const { name } = UpdateCategorySchema.parse(req.body);
   const data: { name?: string; imageUrl?: string } = {};
@@ -52,7 +53,7 @@ router.put("/:id", upload.single("photo"), asyncHandler(async (req, res) => {
   res.json(category);
 }));
 
-router.delete("/:id", asyncHandler(async (req, res) => {
+router.delete("/:id", requireAdmin, asyncHandler(async (req, res) => {
   const id = req.params["id"] as string;
   const previous = await prisma.category.findUnique({ where: { id }, select: { imageUrl: true } });
   await prisma.category.delete({ where: { id } });

@@ -120,6 +120,51 @@
             backdrop-filter: blur(4px);
         }
     </style>
+
+    <!-- Auth guard: redireciona pro login se não houver sessão Supabase -->
+    <script src="/js/supabase-config.js"></script>
+    <script>
+      (function () {
+        try {
+          const url = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.url) || "";
+          const m = url.match(/https:\/\/([^.]+)/);
+          if (!m || !localStorage.getItem(`sb-${m[1]}-auth-token`)) {
+            window.location.replace("/admin-login.html");
+          }
+        } catch (e) { window.location.replace("/admin-login.html"); }
+      })();
+    </script>
+    <script type="module">
+      import { adminAuth } from "/js/admin-auth.js";
+      const user = await adminAuth.requireAdmin();
+      if (user) {
+        window.adminAuth = adminAuth;
+        // Monkey-patch global fetch: injeta Bearer automaticamente em todas
+        // as chamadas a /api do admin, evitando wrappers em cada call-site.
+        const _origFetch = window.fetch.bind(window);
+        window.fetch = async (input, init = {}) => {
+          const url = typeof input === "string" ? input : input.url;
+          if (url && url.includes("/api/")) {
+            const token = await adminAuth.getToken();
+            const headers = new Headers(init.headers || {});
+            if (token) headers.set("Authorization", `Bearer ${token}`);
+            init = { ...init, headers };
+          }
+          return _origFetch(input, init);
+        };
+        // Auto-logout em 401 (sessão expirada)
+        const fetchWrapped = window.fetch;
+        window.fetch = async (input, init) => {
+          const res = await fetchWrapped(input, init);
+          const url = typeof input === "string" ? input : input.url;
+          if (res.status === 401 && url && url.includes("/api/")) {
+            await adminAuth.signOut();
+          }
+          return res;
+        };
+        window.dispatchEvent(new Event("admin-ready"));
+      }
+    </script>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 antialiased">
 
@@ -305,9 +350,15 @@
                 <img src="img/logo-moro.webp" alt="Elétrica Moro" class="h-9 md:h-10 w-auto object-contain">
                 <h1 class="text-base md:text-xl font-bold uppercase tracking-wider hidden sm:block">Gestão Elétrica Moro</h1>
             </div>
-            <a href="/" class="text-sm hover:text-accent transition flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
-                <i class="ph ph-arrow-left"></i> <span class="hidden xs:inline">Voltar</span> Loja
-            </a>
+            <div class="flex items-center gap-2">
+                <span id="adminEmailLabel" class="hidden md:inline text-xs text-white/70 mr-2"></span>
+                <a href="/" class="text-sm hover:text-accent transition flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
+                    <i class="ph ph-arrow-left"></i> <span class="hidden xs:inline">Voltar</span> Loja
+                </a>
+                <button id="logoutBtn" type="button" class="text-sm hover:text-accent transition flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm" title="Sair">
+                    <i class="ph ph-sign-out"></i> <span class="hidden sm:inline">Sair</span>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -331,6 +382,52 @@
             <button data-tab="payments" class="tab-btn px-4 py-2 md:px-5 md:py-2.5 rounded-t-xl font-semibold text-xs md:text-sm transition-all text-slate-500 hover:text-primary whitespace-nowrap">
                 <i class="ph ph-credit-card text-base md:text-lg"></i> Pagamentos
             </button>
+            <button data-tab="team" class="tab-btn px-4 py-2 md:px-5 md:py-2.5 rounded-t-xl font-semibold text-xs md:text-sm transition-all text-slate-500 hover:text-primary whitespace-nowrap">
+                <i class="ph ph-users-three text-base md:text-lg"></i> Equipe
+            </button>
+        </div>
+
+        <!-- TEAM (gestão de admins / convites) -->
+        <div id="teamPanel" class="tab-pane hidden">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <i class="ph ph-users-three text-primary"></i> Equipe administrativa
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">Convide colaboradores por email. Eles recebem um link para criar a senha.</p>
+                    </div>
+                    <button id="openInviteBtn" type="button" class="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-slate-800 transition font-medium shadow-sm flex items-center gap-2">
+                        <i class="ph ph-user-plus"></i> Convidar
+                    </button>
+                </div>
+                <div id="teamList" class="space-y-2">
+                    <p class="text-slate-400 text-sm">Carregando…</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de convite -->
+        <div id="inviteModal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
+                <h3 class="text-xl font-bold text-primary mb-4 flex items-center gap-2">
+                    <i class="ph ph-user-plus text-accent"></i> Convidar colaborador
+                </h3>
+                <form id="inviteForm">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                        <input id="inviteEmail" type="email" required placeholder="colaborador@empresa.com"
+                               class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary outline-none">
+                    </div>
+                    <p id="inviteMsg" class="hidden text-sm mb-3"></p>
+                    <div class="flex justify-end gap-3">
+                        <button type="button" id="closeInviteModal" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition font-medium">Cancelar</button>
+                        <button type="submit" id="inviteSubmit" class="px-5 py-2 bg-primary text-white rounded-xl hover:bg-slate-800 transition font-medium shadow-sm flex items-center gap-2">
+                            <i class="ph ph-paper-plane-tilt"></i> Enviar convite
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- DASHBOARD -->
@@ -1304,9 +1401,15 @@
 
         // Helper fetch com fallback. Desembrulha automaticamente respostas
         // paginadas no formato { data, total, page, limit, totalPages }.
+        // Anexa Bearer token do Supabase Auth quando disponível.
         async function fetchJSON(url, options = {}) {
             try {
-                const res = await fetch(url, options);
+                const headers = new Headers(options.headers || {});
+                if (window.adminAuth) {
+                    const token = await window.adminAuth.getToken();
+                    if (token) headers.set('Authorization', `Bearer ${token}`);
+                }
+                const res = await fetch(url, { ...options, headers });
                 if (!res.ok) {
                     let errorMsg = `Erro ${res.status}`;
                     try {
@@ -2570,6 +2673,137 @@ if (paymentConfigForm) {
             loadCategories();
             initTabs();
         });
+
+        // ========== EQUIPE (gestão de admins) ==========
+        const ADMIN_API = `${API_BASE}/admin`;
+
+        async function loadTeam() {
+            const list = document.getElementById('teamList');
+            if (!list) return;
+            list.innerHTML = '<p class="text-slate-400 text-sm">Carregando…</p>';
+            try {
+                const res = await fetch(`${ADMIN_API}/users`);
+                if (!res.ok) throw new Error('Falha ao carregar equipe');
+                const users = await res.json();
+                if (!users.length) {
+                    list.innerHTML = '<p class="text-slate-400 text-sm">Nenhum admin cadastrado.</p>';
+                    return;
+                }
+                const meRes = await fetch(`${ADMIN_API}/me`);
+                const me = meRes.ok ? await meRes.json() : null;
+                list.innerHTML = users.map(u => {
+                    const isSelf = me && u.id === me.id;
+                    const lastSignIn = u.lastSignInAt
+                        ? new Date(u.lastSignInAt).toLocaleString('pt-BR')
+                        : 'Nunca acessou';
+                    return `
+                        <div class="flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0" style="background-color:#e6efff;color:#0a2540;">
+                                    <i class="ph ph-user"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="font-medium text-slate-800 truncate">${escapeHtml(u.email)}${isSelf ? ' <span class="text-xs text-slate-400">(você)</span>' : ''}</p>
+                                    <p class="text-xs text-slate-500">Último acesso: ${lastSignIn}</p>
+                                </div>
+                            </div>
+                            ${isSelf ? '' : `<button data-remove-admin="${u.id}" class="text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-1"><i class="ph ph-trash"></i> Remover</button>`}
+                        </div>
+                    `;
+                }).join('');
+                list.querySelectorAll('[data-remove-admin]').forEach(btn => {
+                    btn.addEventListener('click', () => removeAdmin(btn.getAttribute('data-remove-admin')));
+                });
+            } catch (err) {
+                list.innerHTML = `<p class="text-rose-500 text-sm">Erro: ${escapeHtml(err.message)}</p>`;
+            }
+        }
+
+        async function removeAdmin(id) {
+            showConfirmModal('Remover admin', 'Tem certeza? Esta pessoa perde acesso imediato.', async () => {
+                try {
+                    const res = await fetch(`${ADMIN_API}/users/${id}`, { method: 'DELETE' });
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        throw new Error(err.error || 'Falha ao remover');
+                    }
+                    showToast('Admin removido', 'success');
+                    loadTeam();
+                } catch (err) {
+                    showToast('Erro: ' + err.message, 'error');
+                }
+            });
+        }
+
+        // Modal de convite
+        const inviteModal = document.getElementById('inviteModal');
+        const openInviteBtn = document.getElementById('openInviteBtn');
+        const closeInviteModal = document.getElementById('closeInviteModal');
+        const inviteForm = document.getElementById('inviteForm');
+        const inviteMsg = document.getElementById('inviteMsg');
+        const inviteEmail = document.getElementById('inviteEmail');
+        const inviteSubmit = document.getElementById('inviteSubmit');
+
+        if (openInviteBtn) openInviteBtn.addEventListener('click', () => {
+            inviteEmail.value = '';
+            inviteMsg.classList.add('hidden');
+            inviteModal.classList.remove('hidden');
+            inviteModal.classList.add('flex');
+        });
+        if (closeInviteModal) closeInviteModal.addEventListener('click', () => {
+            inviteModal.classList.add('hidden');
+            inviteModal.classList.remove('flex');
+        });
+        if (inviteForm) inviteForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            inviteMsg.classList.add('hidden');
+            inviteSubmit.disabled = true;
+            inviteSubmit.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Enviando…';
+            try {
+                const res = await fetch(`${ADMIN_API}/invite`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: inviteEmail.value }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Falha ao convidar');
+                inviteMsg.className = 'text-sm mb-3 text-emerald-600';
+                inviteMsg.textContent = 'Convite enviado! O colaborador vai receber um email.';
+                inviteMsg.classList.remove('hidden');
+                loadTeam();
+                setTimeout(() => {
+                    inviteModal.classList.add('hidden');
+                    inviteModal.classList.remove('flex');
+                }, 1500);
+            } catch (err) {
+                inviteMsg.className = 'text-sm mb-3 text-rose-600';
+                inviteMsg.textContent = err.message;
+                inviteMsg.classList.remove('hidden');
+            } finally {
+                inviteSubmit.disabled = false;
+                inviteSubmit.innerHTML = '<i class="ph ph-paper-plane-tilt"></i> Enviar convite';
+            }
+        });
+
+        // Carregar equipe quando a aba é aberta
+        document.querySelectorAll('[data-tab="team"]').forEach(btn => {
+            btn.addEventListener('click', loadTeam);
+        });
+
+        // ========== LOGOUT + email no header ==========
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async () => {
+                if (window.adminAuth) await window.adminAuth.signOut();
+                else window.location.href = '/admin-login.html';
+            });
+        }
+        (async () => {
+            if (!window.adminAuth) return;
+            const user = await window.adminAuth.getUser();
+            const label = document.getElementById('adminEmailLabel');
+            if (label && user) label.textContent = user.email || '';
+        })();
 
         window.loadCategories = loadCategories;
         window.showToast = showToast;

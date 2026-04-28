@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { z } from "zod";
 import { paymentService } from "../services/paymentService.js";
+import { requireAdmin } from "../middleware/requireAdmin.js";
 
 const router = Router();
 
@@ -32,7 +33,7 @@ router.get("/config", asyncHandler(async (_req, res) => {
   res.json(safeConfig);
 }));
 
-router.post("/config", asyncHandler(async (req, res) => {
+router.post("/config", requireAdmin, asyncHandler(async (req, res) => {
   const parsed = PaymentConfigSchema.parse(req.body);
   
   let config = await prisma.paymentConfig.findFirst();

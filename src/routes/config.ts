@@ -2,6 +2,7 @@ import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
 import { asyncHandler } from "../lib/asyncHandler.js";
 import { z } from "zod";
+import { requireAdmin } from "../middleware/requireAdmin.js";
 
 const router = Router();
 
@@ -61,7 +62,7 @@ router.get("/", asyncHandler(async (_req, res) => {
   res.json(config);
 }));
 
-router.post("/", asyncHandler(async (req, res) => {
+router.post("/", requireAdmin, asyncHandler(async (req, res) => {
   const parsed = ConfigSchema.parse(req.body);
   
   let config = await prisma.storeConfig.findFirst();

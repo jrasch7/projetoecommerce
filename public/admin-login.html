@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin · Elétrica Moro</title>
+    <script src="https://cdn.tailwindcss.com?3.4.1"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+        <div class="text-center mb-6">
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3" style="background-color:#e6efff;color:#0a2540;">
+                <i class="ph ph-shield-check text-3xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-800">Painel Administrativo</h1>
+            <p class="text-sm text-slate-500 mt-1">Entre com suas credenciais</p>
+        </div>
+
+        <div id="banner" class="hidden mb-4 rounded-xl p-3 text-sm"></div>
+
+        <!-- Login form -->
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                <input id="email" type="email" required autocomplete="email"
+                       class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Senha</label>
+                <input id="password" type="password" required autocomplete="current-password"
+                       class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+            <button type="submit" id="loginBtn"
+                    class="w-full py-3 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800 transition disabled:opacity-50">
+                Entrar
+            </button>
+            <p id="loginError" class="hidden text-sm text-rose-600 text-center"></p>
+            <button type="button" id="forgotLink" class="block w-full text-sm text-slate-500 hover:text-slate-700 text-center">
+                Esqueci minha senha
+            </button>
+        </form>
+
+        <!-- Forgot password form -->
+        <form id="forgotForm" class="hidden space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Email cadastrado</label>
+                <input id="forgotEmail" type="email" required
+                       class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+            <button type="submit" id="forgotBtn"
+                    class="w-full py-3 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800 transition disabled:opacity-50">
+                Enviar link de recuperação
+            </button>
+            <button type="button" id="backToLogin" class="block w-full text-sm text-slate-500 hover:text-slate-700 text-center">
+                Voltar ao login
+            </button>
+            <p id="forgotMsg" class="hidden text-sm text-center"></p>
+        </form>
+    </div>
+
+    <script src="/js/supabase-config.js"></script>
+    <script type="module">
+        import { adminAuth, supabase } from "/js/admin-auth.js";
+
+        const loginForm = document.getElementById("loginForm");
+        const forgotForm = document.getElementById("forgotForm");
+        const forgotLink = document.getElementById("forgotLink");
+        const backToLogin = document.getElementById("backToLogin");
+        const loginError = document.getElementById("loginError");
+        const forgotMsg = document.getElementById("forgotMsg");
+        const banner = document.getElementById("banner");
+
+        // Banner para erros vindos da query string
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("error") === "not_admin") {
+            banner.classList.remove("hidden");
+            banner.className = "mb-4 rounded-xl p-3 text-sm bg-rose-50 border border-rose-200 text-rose-700";
+            banner.textContent = "Sua conta não tem permissão de admin.";
+        }
+
+        // Se já estiver logado e for admin, redireciona
+        (async () => {
+            const user = await adminAuth.getUser();
+            if (user && adminAuth.isAdminUser(user)) {
+                const redirect = params.get("redirect") || "/admin.html";
+                window.location.href = redirect;
+            }
+        })();
+
+        forgotLink.addEventListener("click", () => {
+            loginForm.classList.add("hidden");
+            forgotForm.classList.remove("hidden");
+        });
+        backToLogin.addEventListener("click", () => {
+            forgotForm.classList.add("hidden");
+            loginForm.classList.remove("hidden");
+        });
+
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            loginError.classList.add("hidden");
+            const btn = document.getElementById("loginBtn");
+            btn.disabled = true;
+            btn.textContent = "Entrando…";
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: document.getElementById("email").value,
+                    password: document.getElementById("password").value,
+                });
+                if (error) throw error;
+                if (!adminAuth.isAdminUser(data.user)) {
+                    await supabase.auth.signOut();
+                    throw new Error("Sua conta não tem permissão de admin.");
+                }
+                const redirect = params.get("redirect") || "/admin.html";
+                window.location.href = redirect;
+            } catch (err) {
+                loginError.textContent = err.message || "Erro ao entrar.";
+                loginError.classList.remove("hidden");
+                btn.disabled = false;
+                btn.textContent = "Entrar";
+            }
+        });
+
+        forgotForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            forgotMsg.classList.add("hidden");
+            const btn = document.getElementById("forgotBtn");
+            btn.disabled = true;
+            btn.textContent = "Enviando…";
+
+            try {
+                const email = document.getElementById("forgotEmail").value;
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: `${window.location.origin}/admin-set-password.html`,
+                });
+                if (error) throw error;
+                forgotMsg.className = "text-sm text-center text-emerald-600";
+                forgotMsg.textContent = "Link enviado. Verifique seu email.";
+                forgotMsg.classList.remove("hidden");
+            } catch (err) {
+                forgotMsg.className = "text-sm text-center text-rose-600";
+                forgotMsg.textContent = err.message || "Erro ao enviar link.";
+                forgotMsg.classList.remove("hidden");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Enviar link de recuperação";
+            }
+        });
+    </script>
+</body>
+</html>

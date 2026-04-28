@@ -13,6 +13,7 @@ import ordersRouter from "./routes/orders.js";
 import configRouter from "./routes/config.js";
 import paymentsRouter from "./routes/payments.js";
 import authRouter from "./routes/auth.js";
+import adminRouter from "./routes/admin.js";
 import { errorHandler } from "./middleware/error.js";
 
 const app = express();
@@ -80,6 +81,16 @@ app.get(/\.html$/, async (req, res, next) => {
   }
 });
 
+// Injeta a configuração pública do Supabase (URL + anon key) como JS,
+// evitando hardcode no HTML. O anon key é seguro no browser por design.
+app.get("/js/supabase-config.js", (_req, res) => {
+  const cfg = {
+    url: process.env["SUPABASE_URL"] || "",
+    anonKey: process.env["SUPABASE_ANON_KEY"] || "",
+  };
+  res.type("application/javascript").send(`window.SUPABASE_CONFIG = ${JSON.stringify(cfg)};`);
+});
+
 app.use(express.static(publicPath));
 app.use("/uploads", express.static(path.join(publicPath, "uploads")));
 
@@ -94,6 +105,7 @@ app.use("/api/orders", ordersRouter);
 app.use("/api/config", configRouter);
 app.use("/api/payments", paymentsRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/admin", adminRouter);
 
 app.use(errorHandler);
 
